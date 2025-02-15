@@ -25,6 +25,6 @@ include_directories(${SFML_DIR}/include)
 link_directories(${SFML_DIR}/lib)
 
 #add_executable(EcosystemSimulator "Ecosystem Simulator.cpp")
-add_executable(SFML_Project gui/main.cpp)
+add_executable(SFML_Project gui/gui.cpp)
 
-target_link_libraries(SFML_Project sfml-graphics sfml-window sfml-system)
+target_link_libraries(SFML_Project sfml-graphics-d sfml-window-d sfml-system-d)
