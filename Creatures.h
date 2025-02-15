@@ -8,7 +8,8 @@ typedef enum { GRASS } FOOD_TYPE;
 typedef enum {RABBIT, FOX} ANIMAL_TYPE;
 typedef enum {SPEED_M_GROWTH, SPEED_C, MAX_AGE, AGE_OF_MATURE, AGE_OF_OLD, SPEED_OLD_GROWTH, FAST_GENE, WEIGHT, VISIBILITY, VISIBILITY_GENE} PARAM_TYPE;
 
-float_t CREATURES_TABLE[2][10] = {
+
+inline float CREATURES_TABLE[2][10] = {
 	{0.5, 0.2, 100, 7, 55, -0.2, 0.2, 3, 10, 3}, //RABBIT
 	{ 0.5, 0.2, 70, 8, 50, -0.2, 0.2, 7, 20, 6 } //FOX
 };
@@ -34,10 +35,9 @@ protected:
 	uint16_t thirst; 
 	uint16_t hunger; 
 	uint16_t repruductive_urge;
-	float_t basic_speed;
+	float basic_speed;
 	uint16_t basic_visibility;
 	uint16_t basic_gene;
-	uint16_t weight;
 	ANIMAL_TYPE animal_type;
 
 	void Ramble();
