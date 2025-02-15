@@ -19,8 +19,8 @@ project ("Ecosystem Simulator")
 
 # TODO: Добавьте тесты и целевые объекты, если это необходимо.
 
+# SFML
 set(SFML_DIR "${CMAKE_SOURCE_DIR}/libs/SFML-3.0.0")
-
 include_directories(${SFML_DIR}/include)
 link_directories(${SFML_DIR}/lib)
 
