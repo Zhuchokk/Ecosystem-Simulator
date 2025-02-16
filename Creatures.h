@@ -6,12 +6,13 @@
 typedef enum{ FOOD, WATER,ANIMAL} OBJECT_TYPE;
 typedef enum { GRASS } FOOD_TYPE;
 typedef enum {RABBIT, FOX} ANIMAL_TYPE;
-typedef enum {SPEED_M_GROWTH, SPEED_C, MAX_AGE, AGE_OF_MATURE, AGE_OF_OLD, SPEED_OLD_GROWTH, FAST_GENE, WEIGHT, VISIBILITY, VISIBILITY_GENE} PARAM_TYPE;
+typedef enum { MALE, FEMALE } GENDER_TYPE;
+typedef enum {SPEED_M_GROWTH, SPEED_C, MAX_AGE, AGE_OF_MATURE, AGE_OF_OLD, SPEED_OLD_GROWTH, FAST_GENE, WEIGHT, VISIBILITY, VISIBILITY_GENE, PREGNANCY_TIME} PARAM_TYPE;
 
 
-inline float CREATURES_TABLE[2][10] = {
-	{0.5, 0.2, 100, 7, 55, -0.2, 0.2, 3, 10, 3}, //RABBIT
-	{ 0.5, 0.2, 70, 8, 50, -0.2, 0.2, 7, 20, 6 } //FOX
+inline float CREATURES_TABLE[2][11] = {
+	{0.5, 0.2, 100, 7, 55, -0.2, 0.2, 3, 10, 3, 5}, //RABBIT
+	{ 0.5, 0.2, 70, 8, 50, -0.2, 0.2, 7, 20, 6, 7 } //FOX
 };
 
 
@@ -39,6 +40,7 @@ protected:
 	uint16_t basic_visibility;
 	uint16_t basic_gene;
 	ANIMAL_TYPE animal_type;
+	GENDER_TYPE gender_type;
 
 	void Ramble();
 	void GoToTarget(uint16_t x, uint16_t y);
@@ -67,10 +69,15 @@ public:
 class Female : Animal {
 	static const uint16_t PREGNANCY_F = 0x01;
 	static const uint16_t PREGNANCY_S = 0x02;
+	static const uint16_t CONSENT_F = 0x01;
+	static const uint16_t CONSENT_S = 0x02;
 
 	uint16_t female_gene;
+	uint16_t cur_preg_time;
+
 
 	bool RecieveMateRequest();
+	void GiveBirth();
 public:
 	Female();
 	~Female();
