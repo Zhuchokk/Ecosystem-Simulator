@@ -17,8 +17,8 @@ protected:
 	uint16_t hunger; 
 	uint16_t repruductive_urge;
 	float speed;
-	uint16_t basic_visibility;
-	uint16_t basic_gene;
+	uint16_t visibility;
+	uint16_t basic_gene; // bits: 1 - A(Dominant), 0 - a(Recessive)
 	ANIMAL_TYPE animal_type;
 	GENDER_TYPE gender_type;
 	uint16_t x;
@@ -31,11 +31,15 @@ protected:
 	bool roll(float chance); //Returns the probability of chance drop
 	void Go(char s); //The side of moving: r, l, d, u
 	void Go(uint16_t new_x, uint16_t new_y); //coords to where animal will move
-
+	uint16_t GenerateGene();
+	uint16_t GenerateGene(uint16_t father_gene, uint16_t mother_gene);
+	void AdjustAnimalForAge(); // Changes speed and visibility of animal, according it's age.
+	void ApplyBasicGene();
 
 public:
 
 	ANIMAL_TYPE who() { return animal_type; };
+	Field* where() { return field; }
 	void Live(); // Main logic here
 };
 
@@ -44,11 +48,14 @@ class Male : Animal {
 	static const uint16_t ATTRACT_S = 0x02;
 
 	uint16_t male_gene;
+	uint16_t attractiveness; //0 - ugly, 1 - ok, 2 - beautiful
 
 	bool SendMateRequest(); 
+	void ApplyMaleGene();
 
 public:
-	Male();
+	Male(Field* _field, ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
+	Male(Male* father, Animal* mother); //For birth
 	~Male();
 };
 
@@ -64,6 +71,7 @@ class Female : Animal {
 
 	bool RecieveMateRequest();
 	void GiveBirth();
+	void ApplyFemaleGene();
 public:
 	Female();
 	~Female();
