@@ -34,4 +34,6 @@ set RES=".\\libs\\SFML-3.0.0\\bin"
 copy "%RES%\sfml-graphics-d-3.dll" ".\build\Debug"
 copy "%RES%\sfml-window-d-3.dll" ".\build\Debug"
 copy "%RES%\sfml-system-d-3.dll" ".\build\Debug"
-start build/Debug/SFML_Project.exe
+
+cd build/Debug
+start SFML_Project.exe

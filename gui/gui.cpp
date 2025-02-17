@@ -24,7 +24,7 @@ int main()
     // font
 
     sf::Font font;
-    if (!font.openFromFile("./resources/fonts/arialmt.ttf"))
+    if (!font.openFromFile("../../resources/fonts/arialmt.ttf"))
     {
         std::cout << "where is font?" << std::endl;
     }
@@ -40,9 +40,8 @@ int main()
     rightText.setFillColor(sf::Color::White);
     rightText.setPosition({600, 50});
 
-
     sf::Texture bush;
-    if (!bush.loadFromFile("./resources/textures/plants.png", false, sf::IntRect({120, 40}, {100, 96})))
+    if (!bush.loadFromFile("../../resources/textures/plants.png", false, sf::IntRect({120, 40}, {100, 96})))
     {
         std::cout << "where is texture?" << std::endl;
     }
@@ -50,14 +49,17 @@ int main()
 
     sf::Sprite sprite(bush);
 
-    sf::RectangleShape leftRect(sf::Vector2f(200, 200));
+
+    sf::RectangleShape leftRect({leftView.getSize().x * 0.97f, leftView.getSize().y * 0.97f});
     leftRect.setFillColor(sf::Color::Red);
-    leftRect.setPosition({100, 100});
+    leftRect.setPosition({leftView.getSize().x * 0.01f, leftView.getSize().y * 0.01f});
+    leftRect.setOutlineColor(sf::Color::Black);
+    leftRect.setOutlineThickness(2);
 
     // Создаем длинный прямоугольник для правого сектора (чтобы было что прокручивать)
-    sf::RectangleShape rightRect(sf::Vector2f(150, 1200)); // Высота 1200 пикселей
+    sf::RectangleShape rightRect({rightView.getSize().x * 0.97f, rightView.getSize().y+500}); // Высота 1200 пикселей
     rightRect.setFillColor(sf::Color::Blue);
-    rightRect.setPosition({600, 0}); // Правый прямоугольник начинается в верхней части
+    rightRect.setPosition({0, 0}); // Правый прямоугольник начинается в верхней части
 
 
 
@@ -81,7 +83,8 @@ int main()
             if (const auto* mouseWheelScrolled = event->getIf<sf::Event::MouseWheelScrolled>())
             {
                 if(mouseWheelScrolled->wheel == sf::Mouse::Wheel::Vertical) {
-                    scrollOffset -= mouseWheelScrolled->delta * 10.0f;
+                    if(mouseWheelScrolled->position.x >= window.getSize().x * 0.7)
+                        scrollOffset -= mouseWheelScrolled->delta * 20.0f;
                 }
             }
 
@@ -89,18 +92,21 @@ int main()
 
         // Ограничиваем прокрутку, чтобы не выйти за пределы содержимого
         scrollOffset = std::max(scrollOffset, 0.0f); // Не прокручиваем выше начала
-        scrollOffset = std::min(scrollOffset, rightRect.getSize().y - 1000.0f); // Не прокручиваем ниже конца
+        scrollOffset = std::min(scrollOffset, rightRect.getSize().y - 300); // Не прокручиваем ниже конца
 
-        rightView.setCenter({700, 300 + scrollOffset}); // Центр вида смещается в зависимости от прокрутки
+        rightView.setCenter({rightView.getSize().x / 2, 300 + scrollOffset}); // Центр вида смещается в зависимости от прокрутки
 
         // clear the window with black color
         window.clear(backgroundColor);
 
         window.setView(leftView);
+        window.draw(leftRect);
         window.draw(leftText);
 
         window.setView(rightView);
+        window.draw(rightRect);
         window.draw(rightText);
+
 
         window.draw(sprite);
         // end the current frame
