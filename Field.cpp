@@ -1,4 +1,5 @@
 #include "Field.h"
+#include <iostream>
 
 Field::Field(int _height, int _width, double _food_density, double water_percentage) 
     : height(_height),
@@ -6,13 +7,7 @@ Field::Field(int _height, int _width, double _food_density, double water_percent
     water_density(static_cast<int>(_height * _width * water_percentage)),
     food_density(_food_density)
 {
-    matrix = new Object**[height];
-    for (int i = 0; i < height; i++){
-        matrix[i] = new Object*[width];
-        for (int j = 0; j < width; j++){
-            matrix[i][j] = static_cast<Object*>(nullptr);
-        }
-    }
+    generation();
 }
 
 Field::~Field(){
@@ -33,6 +28,29 @@ void Field::generation(){
             matrix[i][j] = static_cast<Object*>(nullptr);
         }
     }
+
+    int count_water_ceils = 0;
+    srand(time(0));
+    while (count_water_ceils < water_density){
+        int min_r = 1;
+        int max_r = std::max(1, std::min(width, height) / 10);
+        int r =  min_r + rand() % (max_r - min_r + 1);
+        int x = rand() % width, y = rand() % height;
+        count_water_ceils += water_maker(x, y, r);
+    }
+}
+
+int Field:: water_maker(int x, int y, int r){
+    int water_count = 0;
+    for (int i = x - r; i < r + x + 1; i++){
+        for (int j = y - r; j < r + y + 1; j++){
+            if ((i >= 0 && i < width) && (j >= 0 && j < height) && ((x - i) * (x - i) + (y - j) * (y - j) <= r * r) && matrix[i][j] == nullptr){
+                matrix[i][j] = new Water();
+                water_count++;
+            }
+        }
+    }
+    return water_count;
 }
 
 Object* Field::get(int i, int j){
