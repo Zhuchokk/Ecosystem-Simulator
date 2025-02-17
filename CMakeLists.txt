@@ -28,3 +28,23 @@ link_directories(${SFML_DIR}/lib)
 add_executable(SFML_Project gui/gui.cpp)
 
 target_link_libraries(SFML_Project sfml-graphics-d sfml-window-d sfml-system-d)
+
+set(DLL_FILES
+        ${CMAKE_SOURCE_DIR}/libs/SFML-3.0.0/bin/sfml-graphics-d-3.dll
+        ${CMAKE_SOURCE_DIR}/libs/SFML-3.0.0/bin/sfml-window-d-3.dll
+        ${CMAKE_SOURCE_DIR}/libs/SFML-3.0.0/bin/sfml-system-d-3.dll
+)
+
+foreach(DLL ${DLL_FILES})
+    add_custom_command(TARGET SFML_Project POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${DLL} $<TARGET_FILE_DIR:SFML_Project>
+            COMMENT "Copying ${DLL} to output directory"
+    )
+endforeach()
+
+
+add_custom_command(TARGET SFML_Project POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${SFML_DIR}/bin $<TARGET_FILE_DIR:SFML_Project>)
+

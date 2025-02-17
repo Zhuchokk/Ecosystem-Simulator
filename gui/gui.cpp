@@ -22,7 +22,7 @@ int main()
 
 
     // font
-
+    // std::cout << std::filesystem::current_path() << std::endl;
     sf::Font font;
     if (!font.openFromFile("../../resources/fonts/arialmt.ttf"))
     {

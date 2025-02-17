@@ -29,11 +29,14 @@ cmake --build . --config Debug
 rem Run project
 cd ..
 
-set RES=".\\libs\\SFML-3.0.0\\bin"
-
-copy "%RES%\sfml-graphics-d-3.dll" ".\build\Debug"
-copy "%RES%\sfml-window-d-3.dll" ".\build\Debug"
-copy "%RES%\sfml-system-d-3.dll" ".\build\Debug"
+@REM set RES=".\\libs\\SFML-3.0.0\\bin"
+@REM
+@REM copy "%RES%\sfml-graphics-d-3.dll" ".\build\Debug"
+@REM copy "%RES%\sfml-window-d-3.dll" ".\build\Debug"
+@REM copy "%RES%\sfml-system-d-3.dll" ".\build\Debug"
+@REM
 
 cd build/Debug
 start SFML_Project.exe
+
+
