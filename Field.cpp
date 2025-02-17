@@ -53,8 +53,24 @@ int Field:: water_maker(int x, int y, int r){
     return water_count;
 }
 
+int Field::get_width(){
+    return width;
+}
+
+int Field::get_height(){
+    return height;
+}
+
 Object* Field::get(int i, int j){
     return matrix[i][j];
+}
+
+bool Field::set(int i, int j, Object* obj){
+    if (!matrix[i][j]){
+        matrix[i][j] = obj;
+        return true;
+    }
+    return false;
 }
 
 bool Field::move_object_right(int i, int j){

@@ -15,7 +15,11 @@ public:
     Field(int _height, int _width, double _food_density, double water_percentage);
     ~Field();
 
+    int get_width();
+    int get_height();
+
     Object* get(int i, int j);
+    bool set(int i, int j, Object* obj);
 
     bool move_object_right(int i, int j);
     bool move_object_left(int i, int j);
