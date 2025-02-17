@@ -1,6 +1,10 @@
 #pragma once
 
 #include<cstdint>
+#include"Field.h"
+
+//Defines
+#define PROBABILITY_RANK 1000 //Used to culculate the probability. The more, the more accurate
 
 //Types for id
 typedef enum{ FOOD, WATER,ANIMAL} OBJECT_TYPE;
@@ -36,15 +40,21 @@ protected:
 	uint16_t thirst; 
 	uint16_t hunger; 
 	uint16_t repruductive_urge;
-	float basic_speed;
+	float speed;
 	uint16_t basic_visibility;
 	uint16_t basic_gene;
 	ANIMAL_TYPE animal_type;
 	GENDER_TYPE gender_type;
+	uint16_t x;
+	uint16_t y;
+	Field* field;
 
 	void Ramble();
 	void GoToTarget(uint16_t x, uint16_t y);
 	uint16_t* CheckForTarget(); // Returns {x, y} TODO: ADD PARAMETERS
+	bool roll(float chance); //Returns the probability of chance drop
+	void Go(char s); //The side of moving: r, l, d, u
+	void Go(uint16_t new_x, uint16_t new_y); //coords to where animal will move
 
 
 public:
