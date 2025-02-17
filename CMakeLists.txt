@@ -9,7 +9,7 @@ endif()
 project ("Ecosystem Simulator")
 
 # Добавьте источник в исполняемый файл этого проекта.
-add_executable (CMakeTarget "Ecosystem Simulator.cpp"  "Creatures.cpp" "Creatures.h" "Field.cpp" "Field.h")
+add_executable (CMakeTarget "Commons.h" "Field.cpp" "Field.h"  "Creatures.cpp" "Creatures.h"  "Ecosystem Simulator.cpp" )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET CMakeTarget PROPERTY CXX_STANDARD 20)
