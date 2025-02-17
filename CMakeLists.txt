@@ -13,8 +13,7 @@ endif()
 project ("Ecosystem Simulator")
 
 # Добавьте источник в исполняемый файл этого проекта.
-#add_executable (CMakeTarget "Ecosystem Simulator.cpp" )
-
+add_executable (CMakeTarget "Commons.h" "Field.cpp" "Field.h"  "Creatures.cpp" "Creatures.h"  "Ecosystem Simulator.cpp" )
 
 
 # TODO: Добавьте тесты и целевые объекты, если это необходимо.

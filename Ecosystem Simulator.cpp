@@ -1,6 +1,5 @@
 ﻿#include<iostream>
-
-using namespace std;
+#include"Creatures.h"
 
 int main()
 {
