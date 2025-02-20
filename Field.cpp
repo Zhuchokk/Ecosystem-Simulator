@@ -1,7 +1,7 @@
 #include "Field.h"
 #include <iostream>
 
-Field::Field(int _height, int _width, double _food_density, double water_percentage) 
+Field::Field(uint16_t _height, uint16_t _width, double _food_density, double water_percentage) 
     : height(_height),
     width(_width),
     water_density(static_cast<int>(_height * _width * water_percentage)),
@@ -11,8 +11,8 @@ Field::Field(int _height, int _width, double _food_density, double water_percent
 }
 
 Field::~Field(){
-    for (int i = 0; i < height; i++){
-        for (int j = 0; j < width; j++){
+    for (uint16_t i = 0; i < height; i++){
+        for (uint16_t j = 0; j < width; j++){
             delete matrix[i][j];
         }
         delete[] matrix[i];
@@ -22,9 +22,9 @@ Field::~Field(){
 
 void Field::generation(){
     matrix = new Object**[height];
-    for (int i = 0; i < height; i++){
+    for (uint16_t i = 0; i < height; i++){
         matrix[i] = new Object*[width];
-        for (int j = 0; j < width; j++){
+        for (uint16_t j = 0; j < width; j++){
             matrix[i][j] = static_cast<Object*>(nullptr);
         }
     }
@@ -32,18 +32,18 @@ void Field::generation(){
     int count_water_ceils = 0;
     srand(time(0));
     while (count_water_ceils < water_density){
-        int min_r = 1;
-        int max_r = std::max(1, std::min(width, height) / 10);
-        int r =  min_r + rand() % (max_r - min_r + 1);
-        int x = rand() % width, y = rand() % height;
+        uint16_t min_r = 1;
+        uint16_t max_r = std::max(1, std::min(width, height) / 10);
+        uint16_t r =  min_r + rand() % (max_r - min_r + 1);
+        uint16_t x = rand() % width, y = rand() % height;
         count_water_ceils += water_maker(x, y, r);
     }
 }
 
-int Field:: water_maker(int x, int y, int r){
+int Field:: water_maker(uint16_t x, uint16_t y, uint16_t r){
     int water_count = 0;
-    for (int i = x - r; i < r + x + 1; i++){
-        for (int j = y - r; j < r + y + 1; j++){
+    for (uint16_t i = x - r; i < r + x + 1; i++){
+        for (uint16_t j = y - r; j < r + y + 1; j++){
             if ((i >= 0 && i < width) && (j >= 0 && j < height) && ((x - i) * (x - i) + (y - j) * (y - j) <= r * r) && matrix[i][j] == nullptr){
                 matrix[i][j] = new Water();
                 water_count++;
@@ -53,19 +53,25 @@ int Field:: water_maker(int x, int y, int r){
     return water_count;
 }
 
-int Field::get_width(){
+uint16_t Field::get_width(){
     return width;
 }
 
-int Field::get_height(){
+uint16_t Field::get_height(){
     return height;
 }
 
-Object* Field::get(int i, int j){
+
+void Field::del(uint16_t i, uint16_t j){
+    delete matrix[i][j];
+    matrix[i][j] = nullptr;
+}
+
+Object* Field::get(uint16_t i, uint16_t j){
     return matrix[i][j];
 }
 
-bool Field::set(int i, int j, Object* obj){
+bool Field::set(uint16_t i, uint16_t j, Object* obj){
     if (!matrix[i][j]){
         matrix[i][j] = obj;
         return true;
@@ -73,7 +79,7 @@ bool Field::set(int i, int j, Object* obj){
     return false;
 }
 
-bool Field::move_object_right(int i, int j){
+bool Field::move_object_right(uint16_t i, uint16_t j){
     if (j + 1 < width && matrix[i][j+1] == nullptr) {
         matrix[i][j+1] = matrix[i][j];
         matrix[i][j] = static_cast<Object*>(nullptr);
@@ -82,7 +88,7 @@ bool Field::move_object_right(int i, int j){
     return false;
 }
 
-bool Field::move_object_left(int i, int j){
+bool Field::move_object_left(uint16_t i, uint16_t j){
     if (j - 1 >= 0 && matrix[i][j-1] == nullptr) {
         matrix[i][j-1] = matrix[i][j];
         matrix[i][j] = static_cast<Object*>(nullptr);
@@ -91,7 +97,7 @@ bool Field::move_object_left(int i, int j){
     return false;
 }
 
-bool Field::move_object_up(int i, int j){
+bool Field::move_object_up(uint16_t i, uint16_t j){
     if (i - 1 >= 0 && matrix[i-1][j] == nullptr) {
         matrix[i-1][j] = matrix[i][j];
         matrix[i][j] = static_cast<Object*>(nullptr);
@@ -100,7 +106,7 @@ bool Field::move_object_up(int i, int j){
     return false;
 }
 
-bool Field::move_object_down(int i, int j){
+bool Field::move_object_down(uint16_t i, uint16_t j){
     if (i + 1 < height && matrix[i+1][j] == nullptr) {
         matrix[i+1][j] = matrix[i][j];
         matrix[i][j] = static_cast<Object*>(nullptr);

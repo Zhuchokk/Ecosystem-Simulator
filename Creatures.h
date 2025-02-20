@@ -23,11 +23,12 @@ protected:
 	GENDER_TYPE gender_type;
 	uint16_t x;
 	uint16_t y;
-	Field* field;
+	static Field* field;
 
 	void Ramble();
 	void GoToTarget(uint16_t x, uint16_t y);
 	uint16_t* CheckForTarget(); // Returns {x, y} TODO: ADD PARAMETERS
+	uint16_t* GetOut(uint16_t x, uint16_t y);
 	bool roll(float chance); //Returns the probability of chance drop
 	void Go(char s); //The side of moving: r, l, d, u
 	void Go(uint16_t new_x, uint16_t new_y); //coords to where animal will move
@@ -39,27 +40,11 @@ protected:
 public:
 
 	ANIMAL_TYPE who() { return animal_type; };
-	Field* where() { return field; }
-	void Live(); // Main logic here
+	uint16_t* where();
+	void BasicLive(); // Main logic here
 };
 
-class Male : Animal {
-	static const uint16_t ATTRACT_F = 0x01;
-	static const uint16_t ATTRACT_S = 0x02;
-
-	uint16_t male_gene;
-	uint16_t attractiveness; //0 - ugly, 1 - ok, 2 - beautiful
-
-	bool SendMateRequest(); 
-	void ApplyMaleGene();
-
-public:
-	Male(Field* _field, ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
-	Male(Male* father, Animal* mother); //For birth
-	~Male();
-};
-
-class Female : Animal {
+class Female : public Animal {
 	static const uint16_t PREGNANCY_F = 0x01;
 	static const uint16_t PREGNANCY_S = 0x02;
 	static const uint16_t CONSENT_F = 0x01;
@@ -67,14 +52,35 @@ class Female : Animal {
 
 	uint16_t female_gene;
 	uint16_t cur_preg_time;
-
-
+	
+	
 	bool RecieveMateRequest();
 	void GiveBirth();
 	void ApplyFemaleGene();
 public:
+	bool hired;
+
 	Female();
 	~Female();
 
+	void Live();
 };
 
+class Male : public Animal {
+	static const uint16_t ATTRACT_F = 0x01;
+	static const uint16_t ATTRACT_S = 0x02;
+
+	uint16_t male_gene;
+	uint16_t attractiveness; //0 - ugly, 1 - ok, 2 - beautiful
+	Female* partner;
+	bool SendMateRequest(Female* partner); 
+	void ApplyMaleGene();
+
+	uint16_t* MCheckForTarget(); //Finding predotors or partners
+public:
+	Male(Field* _field, ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
+	Male(Male* father, Animal* mother); //For birth
+	~Male();
+
+	void Live();
+};

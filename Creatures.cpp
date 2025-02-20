@@ -70,12 +70,38 @@ void Male::ApplyMaleGene() {
 	attractiveness = ATTRACT_F & male_gene + ATTRACT_S & male_gene;
 }
 
+void Animal::BasicLive(){
+	uint16_t* target = CheckForTarget();
+	if (!target){
+		Ramble();
+		return ;
+	}
+	else if(field->get(target[0], target[0])->obj_type == ANIMAL){
+		GetOut(target[0], target[1]);
+	}
+	else{
+		if ((x - target[0])*(x - target[0]) + (y - target[1]) * (y - target[1]) == 1){
+			if (field->get(target[0], target[1])->obj_type == FOOD){
+				uint16_t food = hunger - field->get(target[0], target[1])->food_value;
+				hunger = hunger - food ? hunger - food > 0 : 0;
+				field->del(target[0], target[1]);
+			}
+			else{
+				uint16_t water = CREATURES_TABLE[animal_type][WEIGHT];
+				thirst = thirst - water ? thirst - water > 0 : 0;
+			}
+		} else {
+			GoToTarget(target[0], target[1]);
+		}
+	}
+}
 
 Male::Male(Field* _field, ANIMAL_TYPE _animal_type) {
 	current_age = rand() % (int)CREATURES_TABLE[_animal_type][MAX_AGE];
 	thirst = rand() % (int)(CREATURES_TABLE[_animal_type][WEIGHT] / 2);
 	hunger = rand() % (int)(CREATURES_TABLE[_animal_type][WEIGHT] / 2);
 	repruductive_urge = rand() % 100;
+	partner = nullptr;
 	ANIMAL_TYPE animal_type = _animal_type;
 	GENDER_TYPE gender_type = MALE;
 	basic_gene = GenerateGene();
@@ -96,4 +122,60 @@ Male::Male(Field* _field, ANIMAL_TYPE _animal_type) {
 	y;*/
 	
 
+}
+
+void Male:: Live(){
+	AdjustAnimalForAge();
+	if (partner || (repruductive_urge > thirst && repruductive_urge > hunger)){
+		uint16_t* target = MCheckForTarget();
+		if (!target && !partner){
+			Ramble();
+			return ;
+		}
+		Animal* animal = (Animal*)field->get(target[0], target[1]);
+		if (animal->who() == FOX){
+			if(partner){
+				partner->hired = false;
+				partner = nullptr;
+			}
+			GetOut(target[0], target[1]);
+		} else if(partner){
+			if (partner->hired){
+				uint16_t* partner_coord = partner->where();
+				if ((x - target[0])*(x - target[0]) + (y - target[1]) * (y - target[1]) > 1){
+					GoToTarget(partner_coord[0], partner_coord[1]);
+				}
+			} else{
+				partner = nullptr;
+				Ramble();
+			}
+		} else{
+			partner = (Female*)(Animal*)field->get(target[0], target[1]);
+			if (SendMateRequest(partner)){
+				GoToTarget(target[0], target[1]);
+			} else{
+				Ramble();
+			}
+		}
+
+	} else{
+		BasicLive();
+	}
+}
+
+void Female:: Live(){
+	AdjustAnimalForAge();
+	if (hired){
+		uint16_t* target = CheckForTarget();
+		if (field->get(target[0], target[1])->obj_type == ANIMAL){
+			Animal* animal = (Animal*)field->get(target[0], target[1]);
+			if (animal->who() == FOX){
+				hired = false;
+				GetOut(target[0], target[1]);
+			}
+		}
+		return ;
+	} else{
+		BasicLive();
+	}
 }
