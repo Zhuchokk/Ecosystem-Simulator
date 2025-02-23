@@ -23,7 +23,7 @@ protected:
 	GENDER_TYPE gender_type;
 	uint16_t x;
 	uint16_t y;
-	static Field* field;
+
 
 	void Ramble();
 	void GoToTarget(uint16_t x, uint16_t y);
@@ -32,8 +32,8 @@ protected:
 	bool roll(float chance); //Returns the probability of chance drop
 	void Go(char s); //The side of moving: r, l, d, u
 	void Go(uint16_t new_x, uint16_t new_y); //coords to where animal will move
-	uint16_t GenerateGene();
-	uint16_t GenerateGene(uint16_t father_gene, uint16_t mother_gene);
+	static uint16_t GenerateGene();
+	static uint16_t GenerateGene(uint16_t father_gene, uint16_t mother_gene);
 	void AdjustAnimalForAge(); // Changes speed and visibility of animal, according it's age.
 	void ApplyBasicGene();
 	void ShuffleBasicParameters();
@@ -41,11 +41,14 @@ protected:
 	void PlaceMeNear(uint16_t x, uint16_t y);
 
 public:
-
+	static Field* field;
 	ANIMAL_TYPE who() { return animal_type; };
 	uint16_t* where();
+	uint16_t GetBasicGene(){ return basic_gene; }
 	void BasicLive(); // Main logic here
 };
+
+class Female;
 
 class Male : public Animal {
 	static const uint16_t ATTRACT_F = 0x01;
@@ -55,7 +58,6 @@ class Male : public Animal {
 	uint16_t attractiveness; //0 - ugly, 1 - ok, 2 - beautiful
 	Female* partner;
 
-	bool SendMateRequest(); 
 	void ApplyMaleGene();
 	uint16_t* MCheckForTarget(); //Finding predotors or partners
 	bool SendMateRequest(Female* partner);

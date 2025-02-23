@@ -84,12 +84,13 @@ void Animal::AdjustAnimalForAge() {
 void Animal::ApplyBasicGene() {
 	uint16_t res = FAST_F & basic_gene + FAST_S & basic_gene - 1; //AA -> res = 1, Aa or aA -> res = 0, aa -> res = -1
 	speed += res * CREATURES_TABLE[animal_type][FAST_GENE];
-	uint16_t res = VISIBILITY_F & basic_gene + VISIBILITY_S & basic_gene - 1;
+	res = VISIBILITY_F & basic_gene + VISIBILITY_S & basic_gene - 1;
 	visibility += res * CREATURES_TABLE[animal_type][VISIBILITY_GENE];
 }
 
 uint16_t Animal::GenerateGene() {
 	uint16_t res = rand() % ((1 << GENE_LENGTH) - 1);
+	return res;
 }
 
 uint16_t Animal::GenerateGene(uint16_t father_gene, uint16_t mother_gene) {
@@ -155,10 +156,6 @@ void Animal::ApplyChildParameters(){
 }
 
 
-void Male::ApplyMaleGene() {
-	attractiveness = ATTRACT_F & male_gene + ATTRACT_S & male_gene;
-}
-
 void Animal::BasicLive(){
 	uint16_t* target = CheckForTarget();
 	if (!target){
@@ -185,11 +182,16 @@ void Animal::BasicLive(){
 	}
 }
 
+void Male::ApplyMaleGene() {
+	attractiveness = ATTRACT_F & male_gene + ATTRACT_S & male_gene;
+}
+
+
 Male::Male(Field* _field, ANIMAL_TYPE _animal_type) {
 	animal_type = _animal_type;
 	gender_type = MALE;
 	field = _field;
-	ShuffleBasicParameters();
+	Animal::ShuffleBasicParameters();
 	
 	ApplyMaleGene();
 }
@@ -198,11 +200,11 @@ Male::Male(Male* father, Female* mother) {
 	animal_type = father->animal_type;
 	gender_type = MALE;
 	field = father->field;
-	ApplyChildParameters();
+	Animal::ApplyChildParameters();
 
 	//genes set
 	basic_gene = GenerateGene(father->basic_gene, mother->GetBasicGene());
-	ApplyBasicGene();
+	Animal::ApplyBasicGene();
 	male_gene = father->male_gene;
 	ApplyMaleGene();
 
@@ -217,7 +219,7 @@ Female::Female(Field* _field, ANIMAL_TYPE _animal_type) {
 	animal_type = _animal_type;
 	gender_type = FEMALE;
 	field = _field;
-	ShuffleBasicParameters();
+	Animal::ShuffleBasicParameters();
 
 	ApplyFemaleGene();
 }
@@ -225,11 +227,11 @@ Female::Female(Male* father, Female* mother) {
 	animal_type = mother->animal_type;
 	gender_type = MALE;
 	field = mother->field;
-	ApplyChildParameters();
+	Animal::ApplyChildParameters();
 
 	//genes set
 	basic_gene = GenerateGene(father->GetBasicGene(), mother->basic_gene);
-	ApplyBasicGene();
+	Animal::ApplyBasicGene();
 	female_gene = mother->female_gene;
 	ApplyFemaleGene();
 	//Set location TODO
