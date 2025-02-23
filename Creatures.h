@@ -35,15 +35,19 @@ protected:
 	uint16_t GenerateGene(uint16_t father_gene, uint16_t mother_gene);
 	void AdjustAnimalForAge(); // Changes speed and visibility of animal, according it's age.
 	void ApplyBasicGene();
+	void ShuffleBasicParameters();
+	void ApplyChildParameters();
+	void PlaceMeNear(uint16_t x, uint16_t y);
 
 public:
 
 	ANIMAL_TYPE who() { return animal_type; };
 	Field* where() { return field; }
+	uint16_t GetBasicGene() { return basic_gene; }
 	void Live(); // Main logic here
 };
 
-class Male : Animal {
+class Male : public Animal {
 	static const uint16_t ATTRACT_F = 0x01;
 	static const uint16_t ATTRACT_S = 0x02;
 
@@ -55,26 +59,25 @@ class Male : Animal {
 
 public:
 	Male(Field* _field, ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
-	Male(Male* father, Animal* mother); //For birth
-	~Male();
+	Male(Male* father, Female* mother); //For birth
+	~Male() {}; //No dynamicly allocated memory, nothing to clean
 };
 
-class Female : Animal {
+class Female : public Animal {
 	static const uint16_t PREGNANCY_F = 0x01;
 	static const uint16_t PREGNANCY_S = 0x02;
-	static const uint16_t CONSENT_F = 0x01;
-	static const uint16_t CONSENT_S = 0x02;
 
 	uint16_t female_gene;
 	uint16_t cur_preg_time;
-
+	uint16_t preg_quality; // 0 - very fast, 1 - normal, 2 - slow
 
 	bool RecieveMateRequest();
 	void GiveBirth();
 	void ApplyFemaleGene();
 public:
-	Female();
-	~Female();
+	Female(Field* _field, ANIMAL_TYPE _animal_type); //initialization
+	Female(Male* father, Female* mother); //birth
+	~Female() {}; //No dynamicly allocated memory, nothing to clean
 
 };
 
