@@ -191,7 +191,7 @@ Male::Male(Field* _field, ANIMAL_TYPE _animal_type) {
 	animal_type = _animal_type;
 	gender_type = MALE;
 	field = _field;
-	Animal::ShuffleBasicParameters();
+	ShuffleBasicParameters();
 	
 	ApplyMaleGene();
 }
@@ -200,11 +200,11 @@ Male::Male(Male* father, Female* mother) {
 	animal_type = father->animal_type;
 	gender_type = MALE;
 	field = father->field;
-	Animal::ApplyChildParameters();
+	ApplyChildParameters();
 
 	//genes set
 	basic_gene = GenerateGene(father->basic_gene, mother->GetBasicGene());
-	Animal::ApplyBasicGene();
+	ApplyBasicGene();
 	male_gene = father->male_gene;
 	ApplyMaleGene();
 
@@ -219,7 +219,7 @@ Female::Female(Field* _field, ANIMAL_TYPE _animal_type) {
 	animal_type = _animal_type;
 	gender_type = FEMALE;
 	field = _field;
-	Animal::ShuffleBasicParameters();
+	ShuffleBasicParameters();
 
 	ApplyFemaleGene();
 }
@@ -227,11 +227,11 @@ Female::Female(Male* father, Female* mother) {
 	animal_type = mother->animal_type;
 	gender_type = MALE;
 	field = mother->field;
-	Animal::ApplyChildParameters();
+	ApplyChildParameters();
 
 	//genes set
 	basic_gene = GenerateGene(father->GetBasicGene(), mother->basic_gene);
-	Animal::ApplyBasicGene();
+	ApplyBasicGene();
 	female_gene = mother->female_gene;
 	ApplyFemaleGene();
 	//Set location TODO
