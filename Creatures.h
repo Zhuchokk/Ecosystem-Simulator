@@ -43,6 +43,7 @@ protected:
 public:
 	static Field* field;
 	ANIMAL_TYPE who() { return animal_type; };
+	GENDER_TYPE get_gender() { return gender_type; }
 	uint16_t* where();
 	uint16_t GetBasicGene(){ return basic_gene; }
 	void BasicLive(); // Main logic here

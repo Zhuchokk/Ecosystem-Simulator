@@ -11,6 +11,7 @@
 #define TOO_SLOW_CHILDBIRTH 0.9
 #define CHILD_THIRST_COEF 0.7 // how much water child initially has
 #define CHILD_HUNGER_COEF 0.7  // how much food
+#define FPS 2 // how many ticks per second
 
 //Types for id
 typedef enum { FOOD, WATER, ANIMAL } OBJECT_TYPE;
