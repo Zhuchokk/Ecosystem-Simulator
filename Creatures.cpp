@@ -1,6 +1,44 @@
 #include"Creatures.h"
 #include <cstdlib>
 
+uint16_t* Animal::CheckForTarget(){
+	uint16_t max_urge = 0;
+	uint16_t predator_urge = 5;
+	uint16_t food_urge, water_urge;
+	if(thirst > hunger){
+		water_urge = 4, food_urge = 0;
+	} else{
+		water_urge = 0, food_urge = 4;
+	}
+
+	uint16_t min_x = x - visibility ? x - visibility >= 0 : 0, max_x = x + visibility ? x + visibility <= field->get_width() : field ->get_width();
+	uint16_t min_y = y - visibility ? y - visibility >= 0 : 0, max_y = y + visibility ? y + visibility <= field->get_height() : field->get_height();
+
+	uint16_t* target_coord = new uint16_t[2];
+
+	for (int i = min_y; min_y < max_y; i++){
+		for (int j = min_x; min_x < max_x; j++){
+			uint16_t target_priority;
+			Object* target = field->get(i, j);
+			if (target->obj_type == WATER){
+				target_priority = water_urge;
+			} else if(target->obj_type == FOOD){
+				target_priority = food_urge;
+			} else{
+				Animal* animal = (Animal*)target;
+				if (animal->animal_type == FOX){
+					target_priority = predator_urge;
+				}
+			}
+			if (target_priority > max_urge){
+				max_urge = target_priority;
+				target_coord[0] = i, target_coord[1] = j;
+			}
+		}
+		return target_coord;
+	}
+}
+
 bool Animal::roll(float chance) {
 	chance *= PROBABILITY_RANK;
 	return rand() % PROBABILITY_RANK < chance;
@@ -121,6 +159,31 @@ void Male::ApplyMaleGene() {
 	attractiveness = ATTRACT_F & male_gene + ATTRACT_S & male_gene;
 }
 
+void Animal::BasicLive(){
+	uint16_t* target = CheckForTarget();
+	if (!target){
+		Ramble();
+		return ;
+	}
+	else if(field->get(target[0], target[0])->obj_type == ANIMAL){
+		GetOut(target[0], target[1]);
+	}
+	else{
+		if ((x - target[0])*(x - target[0]) + (y - target[1]) * (y - target[1]) == 1){
+			if (field->get(target[0], target[1])->obj_type == FOOD){
+				uint16_t food = hunger - field->get(target[0], target[1])->food_value;
+				hunger = hunger - food ? hunger - food > 0 : 0;
+				field->del(target[0], target[1]);
+			}
+			else{
+				uint16_t water = CREATURES_TABLE[animal_type][WEIGHT];
+				thirst = thirst - water ? thirst - water > 0 : 0;
+			}
+		} else {
+			GoToTarget(target[0], target[1]);
+		}
+	}
+}
 
 Male::Male(Field* _field, ANIMAL_TYPE _animal_type) {
 	animal_type = _animal_type;
@@ -169,6 +232,62 @@ Female::Female(Male* father, Female* mother) {
 	ApplyBasicGene();
 	female_gene = mother->female_gene;
 	ApplyFemaleGene();
-
 	//Set location TODO
+
+}
+
+void Male:: Live(){
+	AdjustAnimalForAge();
+	if (partner || (repruductive_urge > thirst && repruductive_urge > hunger)){
+		uint16_t* target = MCheckForTarget();
+		if (!target && !partner){
+			Ramble();
+			return ;
+		}
+		Animal* animal = (Animal*)field->get(target[0], target[1]);
+		if (animal->who() == FOX){
+			if(partner){
+				partner->hired = false;
+				partner = nullptr;
+			}
+			GetOut(target[0], target[1]);
+		} else if(partner){
+			if (partner->hired){
+				uint16_t* partner_coord = partner->where();
+				if ((x - target[0])*(x - target[0]) + (y - target[1]) * (y - target[1]) > 1){
+					GoToTarget(partner_coord[0], partner_coord[1]);
+				}
+			} else{
+				partner = nullptr;
+				Ramble();
+			}
+		} else{
+			partner = (Female*)(Animal*)field->get(target[0], target[1]);
+			if (SendMateRequest(partner)){
+				GoToTarget(target[0], target[1]);
+			} else{
+				Ramble();
+			}
+		}
+
+	} else{
+		BasicLive();
+	}
+}
+
+void Female:: Live(){
+	AdjustAnimalForAge();
+	if (hired){
+		uint16_t* target = CheckForTarget();
+		if (field->get(target[0], target[1])->obj_type == ANIMAL){
+			Animal* animal = (Animal*)field->get(target[0], target[1]);
+			if (animal->who() == FOX){
+				hired = false;
+				GetOut(target[0], target[1]);
+			}
+		}
+		return ;
+	} else{
+		BasicLive();
+	}
 }

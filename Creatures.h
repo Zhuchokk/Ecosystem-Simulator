@@ -23,11 +23,12 @@ protected:
 	GENDER_TYPE gender_type;
 	uint16_t x;
 	uint16_t y;
-	Field* field;
+	static Field* field;
 
 	void Ramble();
 	void GoToTarget(uint16_t x, uint16_t y);
 	uint16_t* CheckForTarget(); // Returns {x, y} TODO: ADD PARAMETERS
+	uint16_t* GetOut(uint16_t x, uint16_t y);
 	bool roll(float chance); //Returns the probability of chance drop
 	void Go(char s); //The side of moving: r, l, d, u
 	void Go(uint16_t new_x, uint16_t new_y); //coords to where animal will move
@@ -42,9 +43,8 @@ protected:
 public:
 
 	ANIMAL_TYPE who() { return animal_type; };
-	Field* where() { return field; }
-	uint16_t GetBasicGene() { return basic_gene; }
-	void Live(); // Main logic here
+	uint16_t* where();
+	void BasicLive(); // Main logic here
 };
 
 class Male : public Animal {
@@ -53,14 +53,18 @@ class Male : public Animal {
 
 	uint16_t male_gene;
 	uint16_t attractiveness; //0 - ugly, 1 - ok, 2 - beautiful
+	Female* partner;
 
 	bool SendMateRequest(); 
 	void ApplyMaleGene();
+	uint16_t* MCheckForTarget(); //Finding predotors or partners
+	bool SendMateRequest(Female* partner);
 
 public:
 	Male(Field* _field, ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
 	Male(Male* father, Female* mother); //For birth
 	~Male() {}; //No dynamicly allocated memory, nothing to clean
+	void Live();
 };
 
 class Female : public Animal {
@@ -75,9 +79,12 @@ class Female : public Animal {
 	void GiveBirth();
 	void ApplyFemaleGene();
 public:
+	bool hired;
 	Female(Field* _field, ANIMAL_TYPE _animal_type); //initialization
 	Female(Male* father, Female* mother); //birth
 	~Female() {}; //No dynamicly allocated memory, nothing to clean
 
+
+	void Live();
 };
 

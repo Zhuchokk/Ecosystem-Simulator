@@ -6,23 +6,24 @@ private:
     int water_density;
     double food_density;
     Object*** matrix;
-    int height;
-    int width;
+    uint16_t height;
+    uint16_t width;
     
     void generation();
-    int water_maker(int x, int y, int r);
+    int water_maker(uint16_t x, uint16_t y, uint16_t r);
 public:
-    Field(int _height, int _width, double _food_density, double water_percentage);
+    Field(uint16_t _height, uint16_t _width, double _food_density, double water_percentage);
     ~Field();
 
-    int get_width();
-    int get_height();
+    uint16_t get_width();
+    uint16_t get_height();
 
-    Object* get(int i, int j);
-    bool set(int i, int j, Object* obj);
+    void del(uint16_t i, uint16_t j);
+    Object* get(uint16_t i, uint16_t j);
+    bool set(uint16_t i, uint16_t j, Object* obj);
 
-    bool move_object_right(int i, int j);
-    bool move_object_left(int i, int j);
-    bool move_object_up(int i, int j);
-    bool move_object_down(int i, int j);
+    bool move_object_right(uint16_t i, uint16_t j);
+    bool move_object_left(uint16_t i, uint16_t j);
+    bool move_object_up(uint16_t i, uint16_t j);
+    bool move_object_down(uint16_t i, uint16_t j);
 };
