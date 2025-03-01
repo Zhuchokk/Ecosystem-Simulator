@@ -12,6 +12,7 @@
 #define CHILD_THIRST_COEF 0.7 // how much water child initially has
 #define CHILD_HUNGER_COEF 0.7  // how much food
 #define FPS 2 // how many ticks per second
+#define MAX_VISIBILITY_RAD 15
 
 //Types for id
 typedef enum { FOOD, WATER, ANIMAL } OBJECT_TYPE;
@@ -24,8 +25,8 @@ typedef enum { SPEED_M_GROWTH, SPEED_C, MAX_AGE, AGE_OF_MATURE, AGE_OF_OLD, SPEE
 
 
 inline float CREATURES_TABLE[2][20] = {
-	{0.5, 0.2, 100, 7, 55, -0.2, 0.2, 3, 3, 3, 5, 7, -3, 2, 0, 3, -1, 6, 4, -3}, //RABBIT
-	{ 0.5, 0.2, 70, 8, 50, -0.2, 0.2, 7, 5, 6, 7, 15, -6, 3, 2, 5, -2, 3, 4, -3} //FOX
+	{0.5, 0.2, 100, 7, 55, -0.2, 0.2, 3, 2, 2, 5, 3, -2, 2, 0, 3, -1, 6, 4, -3}, //RABBIT
+	{ 0.5, 0.2, 70, 8, 50, -0.2, 0.2, 7, 3, 3, 7, 7, -2, 3, 2, 5, -2, 3, 4, -3} //FOX
 };
 
 
