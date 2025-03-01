@@ -7,6 +7,23 @@ int hash(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant) {
 }
 std:: unordered_set<int> CHAINING;
 
+//TODO: fill path with -1, next = -1
+
+bool Animal::IsPathValid() {
+	if (next_step == -1) { // we don't have path
+		return false;
+	}
+	for (uint8_t i = next_step; i < MAX_VISIBILITY_RAD; i++) {
+		if (path[i] == -1) // the path ended
+			break;
+		if (path[i] == 'u' && field->get(y - 1, x) == nullptr || path[i] == 'd' && field->get(y + 1, x) == nullptr ||
+			path[i] == 'l' && field->get(y, x - 1) == nullptr || path[i] == 'r' && field->get(y, x + 1) == nullptr) {
+			return false;
+		}
+	}
+	return true;
+}
+
 uint16_t* Animal::CheckForTarget(){
 	uint16_t max_urge = 0;
 	uint16_t predator_urge = 5;
@@ -67,10 +84,10 @@ void Animal::Go(char s) {
 		return;
 
 	switch (s) {
-	case 'r': field->move_object_right(x, y); break;
-	case 'l': field->move_object_left(x, y); break;
-	case 'u': field->move_object_up(x, y); break;
-	case 'd': field->move_object_down(x, y); break;
+	case 'r': field->move_object_right(y, x); break;
+	case 'l': field->move_object_left(y, x); break;
+	case 'u': field->move_object_up(y, x); break;
+	case 'd': field->move_object_down(y, x); break;
 	}
 }
 
@@ -79,13 +96,13 @@ void Animal::Go(uint16_t new_x, uint16_t new_y){
 		throw "Go: Cannot reach these coords";
 	}
 	if (new_x - x == 1)
-		field->move_object_right(x, y);
+		field->move_object_right(y, x);
 	else if (new_x - x == -1)
-		field->move_object_left(x, y);
+		field->move_object_left(y, x);
 	else if (new_y - y == 1)
-		field->move_object_up(x, y);
+		field->move_object_down(y, x);
 	else if (new_y - y == -1)
-		field->move_object_down(x, y);
+		field->move_object_up(y, x);
 }
 
 void Animal::AdjustAnimalForAge() {
@@ -139,6 +156,10 @@ void Animal::Ramble() {
 }
 
 void Animal::ShuffleBasicParameters() {
+	//set path
+	path[0] = -1;
+	next_step = -1;
+
 	//parameters set
 	current_age = rand() % (int)CREATURES_TABLE[animal_type][MAX_AGE];
 	thirst = rand() % (int)(CREATURES_TABLE[animal_type][WEIGHT] / 2);
@@ -165,10 +186,15 @@ void Animal::ShuffleBasicParameters() {
 	do {
 		x = rand() % w;
 		y = rand() % h;
-	} while (!field->set(x, y, this));
+	} while (!field->set(y, x, this));
 }
 
 void Animal::ApplyChildParameters(){
+	//set path
+	path[0] = -1;
+	next_step = -1;
+
+	//parameters
 	current_age = 0;
 	thirst = (CREATURES_TABLE[animal_type][WEIGHT] / 2) * CHILD_THIRST_COEF;
 	hunger = (CREATURES_TABLE[animal_type][WEIGHT] / 2) * CHILD_HUNGER_COEF;

@@ -26,11 +26,13 @@ protected:
 	GENDER_TYPE gender_type;
 	uint16_t x;
 	uint16_t y;
-
+	char path[MAX_VISIBILITY_RAD]; //directions: l, r, d, u
+	int8_t next_step;
 
 	void Ramble();
 	void GoToTarget(uint16_t x, uint16_t y);
 	uint16_t* CheckForTarget(); // Returns {x, y} TODO: ADD PARAMETERS
+	bool IsPathValid(); // checks wether animal can reach the target using calculated path
 	uint16_t* GetOut(uint16_t x, uint16_t y);
 	bool roll(float chance); //Returns the probability of chance drop
 	void Go(char s); //The side of moving: r, l, d, u
