@@ -18,6 +18,8 @@ protected:
 	uint16_t hunger; 
 	uint16_t repruductive_urge;
 	float speed;
+	uint16_t agility;
+	uint16_t strength;
 	uint16_t visibility;
 	uint16_t basic_gene; // bits: 1 - A(Dominant), 0 - a(Recessive)
 	ANIMAL_TYPE animal_type;
@@ -35,7 +37,7 @@ protected:
 	void Go(uint16_t new_x, uint16_t new_y); //coords to where animal will move
 	static uint16_t GenerateGene();
 	static uint16_t GenerateGene(uint16_t father_gene, uint16_t mother_gene);
-	void AdjustAnimalForAge(); // Changes speed and visibility of animal, according it's age.
+	void AdjustAnimalForAge(); // Changes speed, visibility, agility, strength of animal, according it's age.
 	void ApplyBasicGene();
 	void ShuffleBasicParameters();
 	void ApplyChildParameters();

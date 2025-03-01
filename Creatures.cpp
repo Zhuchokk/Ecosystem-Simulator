@@ -92,10 +92,14 @@ void Animal::AdjustAnimalForAge() {
 	if (current_age >= CREATURES_TABLE[animal_type][AGE_OF_MATURE]) {
 		speed += CREATURES_TABLE[animal_type][SPEED_M_GROWTH];
 		visibility += CREATURES_TABLE[animal_type][VISIBILITY_M_GROWTH];
+		agility += CREATURES_TABLE[animal_type][AGILITY_M_GROWTH];
+		strength += CREATURES_TABLE[animal_type][STRENGTH_M_GROWTH];
 	}
 	if (current_age >= CREATURES_TABLE[animal_type][AGE_OF_OLD]) {
 		speed += CREATURES_TABLE[animal_type][SPEED_OLD_GROWTH];
 		visibility += CREATURES_TABLE[animal_type][VISIBILITY_OLD_GROWTH];
+		agility += CREATURES_TABLE[animal_type][AGILITY_OLD_GROWTH];
+		strength += CREATURES_TABLE[animal_type][STRENGTH_OLD_GROWTH];
 	}
 }
 
@@ -142,6 +146,8 @@ void Animal::ShuffleBasicParameters() {
 	repruductive_urge = rand() % 50;
 	speed = CREATURES_TABLE[animal_type][SPEED_C];
 	visibility = CREATURES_TABLE[animal_type][VISIBILITY_C];
+	agility = CREATURES_TABLE[animal_type][AGILITY_C];
+	strength = CREATURES_TABLE[animal_type][STRENGTH_C];
 	AdjustAnimalForAge();
 
 	food_value = CREATURES_TABLE[animal_type][WEIGHT] / KILOS_PER_FOOD_VALUE;
@@ -169,6 +175,8 @@ void Animal::ApplyChildParameters(){
 	repruductive_urge = 0;
 	speed = CREATURES_TABLE[animal_type][SPEED_C];
 	visibility = CREATURES_TABLE[animal_type][VISIBILITY_C];
+	agility = CREATURES_TABLE[animal_type][AGILITY_C];
+	strength = CREATURES_TABLE[animal_type][STRENGTH_C];
 	food_value = CREATURES_TABLE[animal_type][WEIGHT] / KILOS_PER_FOOD_VALUE;
 	water_value = CREATURES_TABLE[animal_type][WEIGHT] / KILOS_PER_WATER_VALUE;
 }
@@ -240,7 +248,7 @@ Male::Male(Male* father, Female* mother) {
 	male_gene = father->male_gene;
 	ApplyMaleGene();
 
-	//Set location TODO
+	//Set location(near mother) TODO
 }
 
 void Female::ApplyFemaleGene() {
@@ -266,7 +274,7 @@ Female::Female(Male* father, Female* mother) {
 	ApplyBasicGene();
 	female_gene = mother->female_gene;
 	ApplyFemaleGene();
-	//Set location TODO
+	//Set location(near mother) TODO
 
 }
 
