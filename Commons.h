@@ -37,8 +37,17 @@ public:
 };
 
 class Food : public Object {
+public:
 	FOOD_TYPE food_type;
 };
 
 class Water : public Object {
+};
+
+struct Edge{
+	uint8_t who_eats;
+	uint8_t who_is_eaten;
+	uint8_t is_plant;
+
+	Edge(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant) : who_eats(who_eats), who_is_eaten(who_is_eaten), is_plant(is_plant) {};
 };

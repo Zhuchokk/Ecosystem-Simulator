@@ -1,5 +1,11 @@
 #include"Creatures.h"
 #include <cstdlib>
+#include <unordered_set>
+
+int hash(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant) {
+	return (is_plant << 16) + (who_eats << 7) + who_is_eaten;
+}
+std:: unordered_set<int> CHAINING;
 
 uint16_t* Animal::CheckForTarget(){
 	uint16_t max_urge = 0;
@@ -23,20 +29,32 @@ uint16_t* Animal::CheckForTarget(){
 			if (target->obj_type == WATER){
 				target_priority = water_urge;
 			} else if(target->obj_type == FOOD){
-				target_priority = food_urge;
+				Food* food = (Food*)target;
+				Edge edge = Edge(static_cast<uint8_t>(animal_type), static_cast<uint8_t>(food->food_type), 1);
+				if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, edge.is_plant)) != CHAINING.end()){
+					target_priority = food_urge;
+				}
+
 			} else{
 				Animal* animal = (Animal*)target;
-				if (animal->animal_type == FOX){
+				Edge edge = Edge(static_cast<uint8_t>(animal->animal_type), static_cast<uint8_t>(this->animal_type), 0);
+				if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, edge.is_plant)) != CHAINING.end()){
 					target_priority = predator_urge;
+				} else if(CHAINING.find(hash(edge.who_is_eaten, edge.who_eats, edge.is_plant)) != CHAINING.end()){
+					target_priority = food_urge;
 				}
 			}
 			if (target_priority > max_urge){
 				max_urge = target_priority;
 				target_coord[0] = i, target_coord[1] = j;
+			} else if (target_priority == max_urge){
+				if (abs(i - x) + abs(j - y) < abs(target_coord[0] - x) + abs(target_coord[1] - y)){
+					target_coord[0] = i, target_coord[1] = j;
+				}
 			}
 		}
-		return target_coord;
 	}
+	return target_coord;
 }
 
 bool Animal::roll(float chance) {
@@ -163,10 +181,24 @@ void Animal::BasicLive(){
 		return ;
 	}
 	else if(field->get(target[0], target[0])->obj_type == ANIMAL){
-		GetOut(target[0], target[1]);
+		Animal* animal = (Animal*)field->get(target[0], target[1]);
+		Edge edge = Edge(static_cast<uint8_t>(animal->animal_type), static_cast<uint8_t>(this->animal_type), 0);
+		if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, edge.is_plant)) != CHAINING.end()){
+			GetOut(target[0], target[1]);
+		} else{
+			if (abs(x - target[0]) + abs(y - target[1]) == 1){
+				if (roll(speed / (animal->speed + speed))){
+					uint16_t food = CREATURES_TABLE[animal->animal_type][WEIGHT];
+					hunger = hunger - food ? hunger - food > 0 : 0;
+					field->del(target[0], target[1]);
+				}
+			} else{
+				GoToTarget(target[0], target[1]);
+			}
+		}
 	}
 	else{
-		if ((x - target[0])*(x - target[0]) + (y - target[1]) * (y - target[1]) == 1){
+		if (abs(x - target[0]) + abs(y - target[1]) == 1){
 			if (field->get(target[0], target[1])->obj_type == FOOD){
 				uint16_t food = hunger - field->get(target[0], target[1])->food_value;
 				hunger = hunger - food ? hunger - food > 0 : 0;
@@ -289,6 +321,8 @@ void Female:: Live(){
 			}
 		}
 		return ;
+	} else if (cur_preg_time == 0){
+		GiveBirth();
 	} else{
 		BasicLive();
 	}

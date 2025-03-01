@@ -4,6 +4,7 @@
 #include"Commons.h"
 #include"Field.h"
 
+int hash(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant);
 
 class Animal:public Object {
 protected:
