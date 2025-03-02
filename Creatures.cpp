@@ -1,19 +1,121 @@
 #include"Creatures.h"
 #include <cstdlib>
 #include <unordered_set>
+#include<bitset>
+#include<queue>
+#include<iostream>
 
 int hash(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant) {
 	return (is_plant << 16) + (who_eats << 7) + who_is_eaten;
 }
 std:: unordered_set<int> CHAINING;
 
-//TODO: fill path with -1, next = -1
+uint16_t HeuristicManhattan(uint16_t x_tar, uint16_t y_tar, uint16_t x, uint16_t y) {
+	return abs(x_tar - x) + abs(y_tar - y);
+}
+
+bool Compare::operator() (std::pair<uint16_t, uint16_t> a, std::pair<uint16_t, uint16_t> b) {
+	if (HeuristicManhattan(a.first, a.second, x, y) > HeuristicManhattan(b.first, b.second, x, y)) { // with the smallest distance will be taken first
+		return true;
+	}
+	return false;
+}
+
+void Animal::GoToTarget(uint16_t x, uint16_t y) {
+	if (abs(this->x - x) + abs(this->y - y) <= 1) {
+		return; //checking wether an object is reachable
+	}
+	if (next_step != -1 && next_step < 2 * MAX_VISIBILITY_RAD && path[next_step] != -1 && IsPathValid()) {
+		Go(path[next_step]); // using existing path
+		next_step++;
+		return;
+	}
+	
+	std::bitset<(2 * MAX_VISIBILITY_RAD + 1) * (2 * MAX_VISIBILITY_RAD + 1)> visited; //matrix (n + 1) * (n + 1)
+	std::vector<uint16_t> parent((2 * MAX_VISIBILITY_RAD + 1) * (2 * MAX_VISIBILITY_RAD + 1), -1);
+	auto get_index = [](uint16_t x, uint16_t y, uint16_t myx, uint16_t myy) {return (x - myx + MAX_VISIBILITY_RAD) * (MAX_VISIBILITY_RAD * 2 + 1) + y - myy + MAX_VISIBILITY_RAD; };
+	std::priority_queue<std::pair<uint16_t, uint16_t>, std::vector<std::pair<uint16_t, uint16_t>>, Compare> q; 
+	bool found = 0;
+	q.push({x, y});
+	Compare::x = x;
+	Compare::y = y;
+	
+
+	while (!q.empty()) {
+		std::pair<uint16_t, uint16_t> cur = q.top();
+		q.pop();
+		if (cur.first == x && cur.second == y) { //target found
+			found = 1;
+			break;
+		} 
+		visited[(cur.first - x + MAX_VISIBILITY_RAD) * (MAX_VISIBILITY_RAD * 2 + 1) + cur.second - y + MAX_VISIBILITY_RAD] = 1;
+		if (cur.first + 1 < field->get_width() && cur.first + 1 <= x + visibility && visited[get_index(cur.first + 1, cur.second, x, y)] == 0)  {
+			q.push({ x + 1, y });
+			parent[get_index(cur.first + 1, cur.second, x, y)] = parent[get_index(cur.first, cur.second, x, y)];
+		}
+		if (cur.first - 1 >= 0 && cur.first - 1 >= x - visibility && visited[get_index(cur.first - 1, cur.second, x, y)] == 0) {
+			q.push({ x - 1, y });
+			parent[get_index(cur.first - 1, cur.second, x, y)] = parent[get_index(cur.first, cur.second, x, y)];
+		}
+		if (cur.second + 1 < field->get_height() && cur.second + 1 <= y + visibility && visited[get_index(cur.first, cur.second + 1, x, y)] == 0) {
+			q.push({ x, y + 1});
+			parent[get_index(cur.first, cur.second + 1, x, y)] = parent[get_index(cur.first, cur.second, x, y)];
+		}
+		if (cur.second - 1 >= 0 && cur.second - 1 >= y - visibility && visited[get_index(cur.first, cur.second - 1, x, y)] == 0) {
+			q.push({ x, y - 1});
+			parent[get_index(cur.first, cur.second - 1, x, y)] = parent[get_index(cur.first, cur.second, x, y)];
+		}
+	}
+	if (found) {
+		int step = get_index(x, y, x, y); //target
+		next_step = 2 * MAX_VISIBILITY_RAD - 1; // length of path array - 1
+		while (parent[step] != -1) {
+			uint16_t y_offset = parent[step] % (2 * MAX_VISIBILITY_RAD + 1) - MAX_VISIBILITY_RAD;
+			uint16_t x_offset = (parent[step] - y_offset - MAX_VISIBILITY_RAD) / (2 * MAX_VISIBILITY_RAD + 1) - MAX_VISIBILITY_RAD;
+			//inverse offsets, going from end of path to the beginning
+			if (x_offset == 1) {
+				path[next_step] = 'l';
+				next_step--;
+			}
+			else if (x_offset == -1) {
+				path[next_step] = 'r';
+				next_step--;
+			}
+			else if (y_offset == 1) {
+				path[next_step] = 'u';
+				next_step--;
+			}
+			else if (y_offset == -1) {
+				path[next_step] = 'd';
+				next_step--;
+			}
+			else {
+				std::cout << "Something wrong in BFS";
+				throw "Error in BFS";
+			}
+			step = parent[step];
+		}
+		next_step++;
+		if (step != get_index(this->x, this->y, x, y)) { //Checking that we reached current position of animal
+			std::cout << "Reached Wrong position of animal in BFS";
+			throw "Wrong position in BFS";
+		}
+	}
+	else {
+		//target isn't reachable
+		std::cout << "Target isn't reachable";
+		throw "Can't find path in BFS";
+	}
+	//After creating the path, go throw
+	Go(path[next_step]);
+	next_step++;
+}
 
 bool Animal::IsPathValid() {
 	if (next_step == -1) { // we don't have path
 		return false;
 	}
-	for (uint8_t i = next_step; i < MAX_VISIBILITY_RAD; i++) {
+	for (uint8_t i = next_step; i < 2 * MAX_VISIBILITY_RAD; i++) {
 		if (path[i] == -1) // the path ended
 			break;
 		if (path[i] == 'u' && field->get(y - 1, x) == nullptr || path[i] == 'd' && field->get(y + 1, x) == nullptr ||

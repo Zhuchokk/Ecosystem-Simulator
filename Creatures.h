@@ -3,6 +3,7 @@
 #include<cstdint>
 #include"Commons.h"
 #include"Field.h"
+#include <cstdlib>
 
 int hash(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant);
 
@@ -26,7 +27,7 @@ protected:
 	GENDER_TYPE gender_type;
 	uint16_t x;
 	uint16_t y;
-	char path[MAX_VISIBILITY_RAD]; //directions: l, r, d, u
+	char path[2 * MAX_VISIBILITY_RAD]; //directions: l, r, d, u
 	int8_t next_step;
 
 	void Ramble();
@@ -96,3 +97,10 @@ public:
 	void Live();
 };
 
+//Warning: comparator only for one thread read-write
+class Compare {
+public:
+	static int x;
+	static int y;
+	bool operator()(std::pair<uint16_t, uint16_t> a, std::pair<uint16_t, uint16_t> b);
+};
