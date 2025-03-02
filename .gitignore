@@ -2,6 +2,7 @@
 /out
 # Visual Studio cash
 /.vs
+/.vscode
 
 # Prerequisites
 *.d
