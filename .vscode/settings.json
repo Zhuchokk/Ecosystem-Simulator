@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "xhash": "cpp",
+        "cstdlib": "cpp"
+    }
+}

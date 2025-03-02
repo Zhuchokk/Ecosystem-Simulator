@@ -126,6 +126,25 @@ bool Animal::IsPathValid() {
 	return true;
 }
 
+void Animal::GetOut(uint16_t _y, uint16_t _x) {
+	uint16_t dif_x = this->x - _x, dif_y = this->y - _y;
+	if (abs(dif_x) > abs(dif_y)) {
+		if (dif_x > 0) {
+			Go('r');
+		}
+		else {
+			Go('l');
+		}
+	} else{
+		if (dif_y > 0) {
+			Go('d');
+		}
+		else {
+			Go('u');
+		}
+	}
+}
+
 uint16_t* Animal::CheckForTarget(){
 	uint16_t max_urge = 0;
 	uint16_t predator_urge = 5;
@@ -136,8 +155,10 @@ uint16_t* Animal::CheckForTarget(){
 		water_urge = 0, food_urge = 4;
 	}
 
-	uint16_t min_x = x - visibility ? x - visibility >= 0 : 0, max_x = x + visibility ? x + visibility <= field->get_width() : field ->get_width();
-	uint16_t min_y = y - visibility ? y - visibility >= 0 : 0, max_y = y + visibility ? y + visibility <= field->get_height() : field->get_height();
+	uint16_t min_x = x - visibility >= 0 ? x - visibility : 0, \
+			 max_x = x + visibility <= field->get_width() ? x + visibility : field ->get_width();
+	uint16_t min_y = y - visibility >= 0 ? y - visibility : 0, \
+	 		 max_y = y + visibility <= field->get_height() ? y + visibility : field->get_height();
 
 	uint16_t* target_coord = new uint16_t[2];
 
@@ -156,7 +177,7 @@ uint16_t* Animal::CheckForTarget(){
 
 			} else{
 				Animal* animal = (Animal*)target;
-				Edge edge = Edge(static_cast<uint8_t>(animal->animal_type), static_cast<uint8_t>(this->animal_type), 0);
+				Edge edge = Edge(static_cast<uint8_t>(animal->who()), static_cast<uint8_t>(this->animal_type), 0);
 				if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, edge.is_plant)) != CHAINING.end()){
 					target_priority = predator_urge;
 				} else if(CHAINING.find(hash(edge.who_is_eaten, edge.who_eats, edge.is_plant)) != CHAINING.end()){
@@ -228,6 +249,43 @@ void Animal::ApplyBasicGene() {
 	res = VISIBILITY_F & basic_gene + VISIBILITY_S & basic_gene - 1;
 	visibility += res * CREATURES_TABLE[animal_type][VISIBILITY_GENE];
 }
+
+uint16_t* Male::MCheckForTarget() {
+	uint16_t max_urge = 0;
+	uint16_t predator_urge = 5;
+	uint16_t libido = 4;
+  
+	uint16_t min_x = x - visibility >= 0 ? x - visibility : 0, max_x = x + visibility <= field->get_width() ? x + visibility : field ->get_width();
+	uint16_t min_y = y - visibility >= 0 ? y - visibility : 0, max_y = y + visibility <= field->get_height() ? y + visibility : field->get_height();
+  
+	uint16_t* target_coord = new uint16_t[2];
+  
+	for (int i = min_y; min_y < max_y; i++){
+		for (int j = min_x; min_x < max_x; j++){
+			uint16_t target_priority = 0;
+			Object* target = field->get(i, j);
+			if (field->get(i, j)->obj_type == ANIMAL){
+				Animal* animal = (Animal*)target;
+				Edge edge = Edge(static_cast<uint8_t>(animal->who()), static_cast<uint8_t>(animal_type), 0);
+				if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, edge.is_plant)) != CHAINING.end()){
+					target_priority = predator_urge;
+				} else if(animal->who() == animal_type && animal->get_gender() == FEMALE){
+					target_priority = libido;
+				}
+			}
+			if (max_urge < target_priority){
+				max_urge = target_priority;
+				target_coord[0] = i, target_coord[1] = j;
+			} else if (max_urge == target_priority){
+				if (abs(y - i) + abs(x - j) < abs(y - target_coord[0]) + abs(x - target_coord[1])){
+					target_coord[0] = i, target_coord[1] = j;
+					}
+			}
+	  	}
+	}
+	return target_coord;
+}
+  
 
 uint16_t Animal::GenerateGene() {
 	uint16_t res = rand() % ((1 << GENE_LENGTH) - 1);
@@ -318,13 +376,23 @@ void Animal::BasicLive(){
 	}
 	else if(field->get(target[0], target[0])->obj_type == ANIMAL){
 		Animal* animal = (Animal*)field->get(target[0], target[1]);
-		Edge edge = Edge(static_cast<uint8_t>(animal->animal_type), static_cast<uint8_t>(this->animal_type), 0);
+		Edge edge = Edge(static_cast<uint8_t>(animal->who()), static_cast<uint8_t>(this->animal_type), 0);
 		if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, edge.is_plant)) != CHAINING.end()){
 			GetOut(target[0], target[1]);
 		} else{
-			if (abs(x - target[0]) + abs(y - target[1]) == 1){
-				if (roll(speed / (animal->speed + speed))){
-					uint16_t food = CREATURES_TABLE[animal->animal_type][WEIGHT];
+			if (abs(y - target[0]) + abs(x - target[1]) == 1){
+				uint16_t chance = 0.4;
+				if (speed > animal->speed){
+				 	chance += 0.2;
+				}
+				if (strength > animal->strength){
+				  	chance += 0.2;
+				}
+				if (agility > animal->agility){
+				  	chance += 0.2;
+				}
+				if (roll(chance)){
+					uint16_t food = CREATURES_TABLE[animal->who()][WEIGHT];
 					hunger = hunger - food ? hunger - food > 0 : 0;
 					field->del(target[0], target[1]);
 				}
@@ -404,6 +472,9 @@ Female::Female(Male* father, Female* mother) {
 
 void Male:: Live(){
 	AdjustAnimalForAge();
+	if(++current_age > CREATURES_TABLE[animal_type][LIFESPAN]){
+		field->del(y, x);
+	}
 	if (partner || (repruductive_urge > thirst && repruductive_urge > hunger)){
 		uint16_t* target = MCheckForTarget();
 		if (!target && !partner){
@@ -411,7 +482,8 @@ void Male:: Live(){
 			return ;
 		}
 		Animal* animal = (Animal*)field->get(target[0], target[1]);
-		if (animal->who() == FOX){
+		Edge edge = Edge(static_cast<uint8_t>(animal->who()), static_cast<uint8_t>(animal_type), 0);
+		if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, 0)) != CHAINING.end()){
 			if(partner){
 				partner->hired = false;
 				partner = nullptr;
@@ -428,8 +500,8 @@ void Male:: Live(){
 				Ramble();
 			}
 		} else{
-			partner = (Female*)(Animal*)field->get(target[0], target[1]);
-			if (SendMateRequest(partner)){
+			Female* female = (Female*)animal;
+			if (SendMateRequest(female)){
 				GoToTarget(target[0], target[1]);
 			} else{
 				Ramble();
@@ -443,18 +515,22 @@ void Male:: Live(){
 
 void Female:: Live(){
 	AdjustAnimalForAge();
-	if (hired){
+	if(++current_age > CREATURES_TABLE[animal_type][LIFESPAN]){
+		field->del(y, x);
+	}
+	if (cur_preg_time == 0){
+		GiveBirth();
+	} else if (hired){
 		uint16_t* target = CheckForTarget();
 		if (field->get(target[0], target[1])->obj_type == ANIMAL){
 			Animal* animal = (Animal*)field->get(target[0], target[1]);
-			if (animal->who() == FOX){
+			Edge edge = Edge(static_cast<uint8_t>(animal->who()), static_cast<uint8_t>(animal_type), 0);
+			if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, 0)) != CHAINING.end()){
 				hired = false;
 				GetOut(target[0], target[1]);
 			}
 		}
 		return ;
-	} else if (cur_preg_time == 0){
-		GiveBirth();
 	} else{
 		BasicLive();
 	}

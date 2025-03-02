@@ -62,9 +62,9 @@ uint16_t Field::get_height(){
 }
 
 
-void Field::del(uint16_t i, uint16_t j){
-    delete matrix[i][j];
-    matrix[i][j] = nullptr;
+void Field::del(uint16_t y, uint16_t x){
+    delete matrix[y][x];
+    matrix[y][x] = nullptr;
 }
 
 Object* Field::get(uint16_t i, uint16_t j){
@@ -79,37 +79,37 @@ bool Field::set(uint16_t i, uint16_t j, Object* obj){
     return false;
 }
 
-bool Field::move_object_right(uint16_t i, uint16_t j){
-    if (j + 1 < width && matrix[i][j+1] == nullptr) {
-        matrix[i][j+1] = matrix[i][j];
-        matrix[i][j] = static_cast<Object*>(nullptr);
+bool Field::move_object_right(uint16_t y, uint16_t x){
+    if (x + 1 < width && matrix[y][x+1] == nullptr) {
+        matrix[y][x+1] = matrix[y][x];
+        matrix[y][x] = static_cast<Object*>(nullptr);
         return true;
     }
     return false;
 }
 
-bool Field::move_object_left(uint16_t i, uint16_t j){
-    if (j - 1 >= 0 && matrix[i][j-1] == nullptr) {
-        matrix[i][j-1] = matrix[i][j];
-        matrix[i][j] = static_cast<Object*>(nullptr);
+bool Field::move_object_left(uint16_t y, uint16_t x){
+    if (x - 1 >= 0 && matrix[y][x-1] == nullptr) {
+        matrix[y][x-1] = matrix[y][x];
+        matrix[y][x] = static_cast<Object*>(nullptr);
         return true;
     }
     return false;
 }
 
-bool Field::move_object_up(uint16_t i, uint16_t j){
-    if (i - 1 >= 0 && matrix[i-1][j] == nullptr) {
-        matrix[i-1][j] = matrix[i][j];
-        matrix[i][j] = static_cast<Object*>(nullptr);
+bool Field::move_object_up(uint16_t y, uint16_t x){
+    if (y - 1 >= 0 && matrix[y-1][x] == nullptr) {
+        matrix[y-1][x] = matrix[y][x];
+        matrix[y][x] = static_cast<Object*>(nullptr);
         return true;
     }
     return false;
 }
 
-bool Field::move_object_down(uint16_t i, uint16_t j){
-    if (i + 1 < height && matrix[i+1][j] == nullptr) {
-        matrix[i+1][j] = matrix[i][j];
-        matrix[i][j] = static_cast<Object*>(nullptr);
+bool Field::move_object_down(uint16_t y, uint16_t x){
+    if (y+ 1 < height && matrix[y+1][x] == nullptr) {
+        matrix[y+1][x] = matrix[y][x];
+        matrix[y][x] = static_cast<Object*>(nullptr);
         return true;
     }
     return false;
