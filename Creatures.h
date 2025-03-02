@@ -70,7 +70,7 @@ class Male : public Animal {
 	bool SendMateRequest(Female* partner);
 
 public:
-	Male(Field* _field, ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
+	Male(ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
 	Male(Male* father, Female* mother); //For birth
 	~Male() {}; //No dynamicly allocated memory, nothing to clean
 	void Live();
@@ -89,7 +89,7 @@ class Female : public Animal {
 	void ApplyFemaleGene();
 public:
 	bool hired;
-	Female(Field* _field, ANIMAL_TYPE _animal_type); //initialization
+	Female(ANIMAL_TYPE _animal_type); //initialization
 	Female(Male* father, Female* mother); //birth
 	~Female() {}; //No dynamicly allocated memory, nothing to clean
 

@@ -9,7 +9,7 @@ int main()
 	char a; std::cout << "Do you want to start(y/n)?"; std::cin >> a;
 	if (a != 'y') return 0;
 	//========
-	//TODO: init field, place objects and creatures
+	//TODO: init field, INIT STATIC FIELD OF ANIMAL, place objects and creatures
 	std::list<Object*> creatures;
 	while (true) {
 		for (auto iter = creatures.begin(); iter != creatures.end(); iter++) {
