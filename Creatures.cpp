@@ -355,10 +355,9 @@ void Male::ApplyMaleGene() {
 }
 
 
-Male::Male(Field* _field, ANIMAL_TYPE _animal_type) {
+Male::Male(ANIMAL_TYPE _animal_type) {
 	animal_type = _animal_type;
 	gender_type = MALE;
-	field = _field;
 	ShuffleBasicParameters();
 	
 	ApplyMaleGene();
@@ -367,7 +366,6 @@ Male::Male(Field* _field, ANIMAL_TYPE _animal_type) {
 Male::Male(Male* father, Female* mother) {
 	animal_type = father->animal_type;
 	gender_type = MALE;
-	field = father->field;
 	ApplyChildParameters();
 
 	//genes set
@@ -383,10 +381,9 @@ void Female::ApplyFemaleGene() {
 	preg_quality = PREGNANCY_F & female_gene + PREGNANCY_S & female_gene;
 }
 
-Female::Female(Field* _field, ANIMAL_TYPE _animal_type) {
+Female::Female(ANIMAL_TYPE _animal_type) {
 	animal_type = _animal_type;
 	gender_type = FEMALE;
-	field = _field;
 	ShuffleBasicParameters();
 
 	ApplyFemaleGene();
@@ -394,7 +391,6 @@ Female::Female(Field* _field, ANIMAL_TYPE _animal_type) {
 Female::Female(Male* father, Female* mother) {
 	animal_type = mother->animal_type;
 	gender_type = MALE;
-	field = mother->field;
 	ApplyChildParameters();
 
 	//genes set
