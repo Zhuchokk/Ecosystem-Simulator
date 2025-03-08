@@ -71,7 +71,7 @@ class Male : public Animal {
 
 public:
 	Male(ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
-	Male(Male* father, Female* mother); //For birth
+	Male(uint16_t& father_basic_gene, uint16_t& father_male_gene, Female* mother); //For birth
 	~Male() {}; //No dynamicly allocated memory, nothing to clean
 	void Live();
 };
@@ -83,6 +83,8 @@ class Female : public Animal {
 	uint16_t female_gene;
 	uint16_t cur_preg_time;
 	uint16_t preg_quality; // 0 - very fast, 1 - normal, 2 - slow
+	uint16_t recieved_male_gene;
+	uint16_t recieved_basic_gene;
 
 	bool RecieveMateRequest();
 	void GiveBirth();
@@ -90,7 +92,7 @@ class Female : public Animal {
 public:
 	bool hired;
 	Female(ANIMAL_TYPE _animal_type); //initialization
-	Female(Male* father, Female* mother); //birth
+	Female(uint16_t& father_basic_gene, Female* mother); //birth
 	~Female() {}; //No dynamicly allocated memory, nothing to clean
 
 

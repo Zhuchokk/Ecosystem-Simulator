@@ -431,15 +431,15 @@ Male::Male(ANIMAL_TYPE _animal_type) {
 	ApplyMaleGene();
 }
 
-Male::Male(Male* father, Female* mother) {
-	animal_type = father->animal_type;
+Male::Male(uint16_t& father_basic_gene, uint16_t& father_male_gene, Female* mother) {
+	animal_type = mother->who();
 	gender_type = MALE;
 	ApplyChildParameters();
 
 	//genes set
-	basic_gene = GenerateGene(father->basic_gene, mother->GetBasicGene());
+	basic_gene = GenerateGene(father_basic_gene, mother->GetBasicGene());
 	ApplyBasicGene();
-	male_gene = father->male_gene;
+	male_gene = father_male_gene;
 	ApplyMaleGene();
 
 	//Set location(near mother) TODO
@@ -456,13 +456,13 @@ Female::Female(ANIMAL_TYPE _animal_type) {
 
 	ApplyFemaleGene();
 }
-Female::Female(Male* father, Female* mother) {
+Female::Female(uint16_t& father_basic_gene, Female* mother) {
 	animal_type = mother->animal_type;
 	gender_type = MALE;
 	ApplyChildParameters();
 
 	//genes set
-	basic_gene = GenerateGene(father->GetBasicGene(), mother->basic_gene);
+	basic_gene = GenerateGene(father_basic_gene, mother->basic_gene);
 	ApplyBasicGene();
 	female_gene = mother->female_gene;
 	ApplyFemaleGene();
