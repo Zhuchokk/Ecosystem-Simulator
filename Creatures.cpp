@@ -513,6 +513,22 @@ void Male:: Live(){
 	}
 }
 
+bool Male::SendMateRequest(Female* partner) {
+	if (partner->RecieveMateRequest(attractiveness)) { //success
+		this->partner = partner;
+		return true;
+	}
+	return false;
+}
+
+bool Female::RecieveMateRequest(uint16_t attactiveness) {
+	if (roll(AGREE_CHANCE + repruductive_urge / 200 * (1 - AGREE_CHANCE) + (attactiveness - 1) * (1 - AGREE_CHANCE) / 2)) { //ugly = -chance, ok = +0, beautiful = +chance
+		hired = true;
+		return true;
+	}
+	return false;
+}
+
 void Female:: Live(){
 	AdjustAnimalForAge();
 	if(++current_age > CREATURES_TABLE[animal_type][LIFESPAN]){

@@ -12,7 +12,10 @@
 #define CHILD_THIRST_COEF 0.7 // how much water child initially has
 #define CHILD_HUNGER_COEF 0.7  // how much food
 #define FPS 2 // how many ticks per second
-#define MAX_VISIBILITY_RAD 15
+#define MAX_VISIBILITY_RAD 15 //length of half of square
+#define COUNT_ANIMAL_TYPES 2 //how many different types of animal do we have
+#define INIT_COUNT_OF_CREATURES 10 //How many creatures will be initially on the field
+#define AGREE_CHANCE 0.5 //basic agreement chance for mating
 
 //Types for id
 typedef enum { FOOD, WATER, ANIMAL } OBJECT_TYPE;
