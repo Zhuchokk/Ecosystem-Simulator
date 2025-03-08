@@ -9,8 +9,25 @@ int main()
 	char a; std::cout << "Do you want to start(y/n)?"; std::cin >> a;
 	if (a != 'y') return 0;
 	//========
-	//TODO: init field, INIT STATIC FIELD OF ANIMAL, place objects and creatures
+	//TODO: place food
+	Field field = Field(100, 100, 40, 20);
+	Animal::field = &field; // init static field for all animals
 	std::list<Object*> creatures;
+	for (int i = 0; i < INIT_COUNT_OF_CREATURES; ++i) {
+		ANIMAL_TYPE type = (ANIMAL_TYPE)(rand() % COUNT_ANIMAL_TYPES);
+		bool gender = rand() % 2;
+		if (gender) {
+			Male* m = new Male(type);
+			creatures.push_back(m);
+		}
+		else {
+			Female* f = new Female(type);
+			creatures.push_back(f);
+		}
+			
+	}
+
+	//For now there are only animals in creatures, since there is nothing to do with food and water
 	while (true) {
 		for (auto iter = creatures.begin(); iter != creatures.end(); iter++) {
 			if (*iter == nullptr) {

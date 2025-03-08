@@ -87,12 +87,12 @@ class Female : public Animal {
 	uint16_t recieved_male_gene;
 	uint16_t recieved_basic_gene;
 
-	bool RecieveMateRequest();
 	void GiveBirth();
 	void ApplyFemaleGene();
 public:
 	bool pregnant;
 	bool hired;
+	bool RecieveMateRequest(uint16_t attactiveness);
 	Female(ANIMAL_TYPE _animal_type); //initialization
 	Female(uint16_t& father_basic_gene, Female* mother); //birth
 	~Female() {}; //No dynamicly allocated memory, nothing to clean
