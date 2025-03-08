@@ -4,15 +4,17 @@
 class Field {
 private:
     int water_density;
-    double food_density;
+    int food_density;
+    int food_number;
     Object*** matrix;
     uint16_t height;
     uint16_t width;
     
     void generation();
     int water_maker(uint16_t x, uint16_t y, uint16_t r);
+    void food_maker();
 public:
-    Field(uint16_t _height, uint16_t _width, double _food_density, double water_percentage);
+    Field(uint16_t _height, uint16_t _width, double _food_percentage, double water_percentage);
     ~Field();
 
     uint16_t get_width();

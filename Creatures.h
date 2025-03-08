@@ -68,6 +68,7 @@ class Male : public Animal {
 	void ApplyMaleGene();
 	uint16_t* MCheckForTarget(); //Finding predotors or partners
 	bool SendMateRequest(Female* partner);
+	void Mating();
 
 public:
 	Male(ANIMAL_TYPE _animal_type); //for initialization of the field, randomly generates all
@@ -90,6 +91,7 @@ class Female : public Animal {
 	void GiveBirth();
 	void ApplyFemaleGene();
 public:
+	bool pregnant;
 	bool hired;
 	Female(ANIMAL_TYPE _animal_type); //initialization
 	Female(uint16_t& father_basic_gene, Female* mother); //birth
@@ -97,6 +99,7 @@ public:
 
 
 	void Live();
+	void Mating(uint16_t father_male_gene, uint16_t father_basic_gene);
 };
 
 //Warning: comparator only for one thread read-write

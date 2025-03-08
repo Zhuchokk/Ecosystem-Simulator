@@ -3,7 +3,8 @@
 #include <unordered_set>
 #include<bitset>
 #include<queue>
-#include<iostream>
+#include <iostream>
+#include <exception>
 
 int hash(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant) {
 	return (is_plant << 16) + (who_eats << 7) + who_is_eaten;
@@ -270,7 +271,10 @@ uint16_t* Male::MCheckForTarget() {
 				if (CHAINING.find(hash(edge.who_eats, edge.who_is_eaten, edge.is_plant)) != CHAINING.end()){
 					target_priority = predator_urge;
 				} else if(animal->who() == animal_type && animal->get_gender() == FEMALE){
-					target_priority = libido;
+					Female* female = (Female*)animal;
+					if (!female->pregnant && !female->hired){
+						target_priority = libido;
+					}
 				}
 			}
 			if (max_urge < target_priority){
@@ -279,13 +283,17 @@ uint16_t* Male::MCheckForTarget() {
 			} else if (max_urge == target_priority){
 				if (abs(y - i) + abs(x - j) < abs(y - target_coord[0]) + abs(x - target_coord[1])){
 					target_coord[0] = i, target_coord[1] = j;
-					}
+				}
 			}
 	  	}
 	}
 	return target_coord;
 }
-  
+
+void Male::Mating(){
+	partner->Mating(basic_gene, male_gene);
+	partner = nullptr;
+}
 
 uint16_t Animal::GenerateGene() {
 	uint16_t res = rand() % ((1 << GENE_LENGTH) - 1);
@@ -367,6 +375,40 @@ void Animal::ApplyChildParameters(){
 	water_value = CREATURES_TABLE[animal_type][WEIGHT] / KILOS_PER_WATER_VALUE;
 }
 
+void Animal::PlaceMeNear(uint16_t _y, uint16_t _x){
+	uint16_t weidth = field->get_width(), height = field->get_height();
+  
+	uint16_t step = 1;
+	for (int i = 1; i < visibility * 2 + 1; i++){
+		for (int h = 0; h < i; h++){
+			if (_y >= 0 && _y < height && _x >= 0 && _x < weidth){
+				Object* obj = field->get(_y, _x);
+				if (obj == nullptr){
+					x = _x, y = _y;
+					field->set(y, x, this);
+					return ;
+				}
+			}
+			_x += step;
+		}
+		for (int h = 0; h < i; h++){
+			if (_y >= 0 && _y < height && _x >= 0 && _x < weidth){
+				Object* obj = field->get(_y, _x);
+				if (obj == nullptr){
+					x = _x, y = _y;
+					field->set(y, x, this);
+					return ;
+				}
+			}
+			_y += step;
+		}
+  
+		step = -step;
+	}
+	throw std::runtime_error("PlaceMeNear: Cannot find place");
+} 
+
+uint16_t* Animal::where() { return new uint16_t[2] {y, x}; };
 
 void Animal::BasicLive(){
 	uint16_t* target = CheckForTarget();
@@ -409,7 +451,7 @@ void Animal::BasicLive(){
 				field->del(target[0], target[1]);
 			}
 			else{
-				uint16_t water = CREATURES_TABLE[animal_type][WEIGHT];
+				uint16_t water = CREATURES_TABLE[animal_type][WEIGHT] / 5;
 				thirst = thirst - water ? thirst - water > 0 : 0;
 			}
 		} else {
@@ -442,7 +484,39 @@ Male::Male(uint16_t& father_basic_gene, uint16_t& father_male_gene, Female* moth
 	male_gene = father_male_gene;
 	ApplyMaleGene();
 
+	uint16_t* mother_coord = mother->where();
+	try{
+		PlaceMeNear(mother_coord[0], mother_coord[1]);
+	} catch (std::exception& e){
+		std:: cout << e.what() << std::endl;
+	}
+	delete[] mother_coord;
 	//Set location(near mother) TODO
+}
+
+void Female::Mating(uint16_t father_male_gene, uint16_t father_basic_gene) {
+	recieved_male_gene  = father_male_gene;
+	recieved_basic_gene = father_basic_gene;
+	hired               = false;
+	pregnant            = true;
+	cur_preg_time       = CREATURES_TABLE[animal_type][PREGNANCY_TIME] + (preg_quality - 1) * CREATURES_TABLE[animal_type][PREGNANCY_GENE]; //base pregnancy time +- base growth pregnancy time
+}
+
+void Female::GiveBirth(){
+	auto childrenCount = CREATURES_TABLE[animal_type][CHILDREN_COUNT];
+	auto pregGene      = CREATURES_TABLE[animal_type][PREGNANCY_GENE];
+	auto pregTime      = CREATURES_TABLE[animal_type][PREGNANCY_TIME];
+
+	uint16_t max_cnt_child = childrenCount * (1.f + (preg_quality - 1.f) * pregGene / pregTime);
+	uint16_t cnt_child = rand() % (int)CREATURES_TABLE[animal_type][CHILDREN_COUNT] + 1;
+	for (int i = 0; i < cnt_child; i++){
+		bool gender = rand() % 2;
+		if (gender){
+			Male* child = new Male(recieved_basic_gene, recieved_male_gene, this);
+		} else{
+			Female* child = new Female(recieved_basic_gene, this);
+		}
+	}
 }
 
 void Female::ApplyFemaleGene() {
@@ -466,6 +540,14 @@ Female::Female(uint16_t& father_basic_gene, Female* mother) {
 	ApplyBasicGene();
 	female_gene = mother->female_gene;
 	ApplyFemaleGene();
+
+	uint16_t* mother_coord = mother->where();
+	try{
+		PlaceMeNear(mother_coord[0], mother_coord[1]);
+	} catch (std::exception& e){
+		std:: cout << e.what() << std::endl;
+	}
+	delete[] mother_coord;
 	//Set location(near mother) TODO
 
 }
@@ -492,8 +574,10 @@ void Male:: Live(){
 		} else if(partner){
 			if (partner->hired){
 				uint16_t* partner_coord = partner->where();
-				if ((x - target[0])*(x - target[0]) + (y - target[1]) * (y - target[1]) > 1){
+				if (abs(y - partner_coord[0]) + abs(x - partner_coord[1]) > 1){
 					GoToTarget(partner_coord[0], partner_coord[1]);
+				} else{
+					Mating();
 				}
 			} else{
 				partner = nullptr;
@@ -518,7 +602,7 @@ void Female:: Live(){
 	if(++current_age > CREATURES_TABLE[animal_type][LIFESPAN]){
 		field->del(y, x);
 	}
-	if (cur_preg_time == 0){
+	if (pregnant && --cur_preg_time == 0){
 		GiveBirth();
 	} else if (hired){
 		uint16_t* target = CheckForTarget();

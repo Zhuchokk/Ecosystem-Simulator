@@ -1,11 +1,12 @@
 #include "Field.h"
 #include <iostream>
 
-Field::Field(uint16_t _height, uint16_t _width, double _food_density, double water_percentage) 
+Field::Field(uint16_t _height, uint16_t _width, double _food_procentage, double water_percentage) 
     : height(_height),
     width(_width),
     water_density(static_cast<int>(_height * _width * water_percentage)),
-    food_density(_food_density)
+    food_density(static_cast<int>(_height * _width * _food_procentage)),
+    food_number(0)
 {
     generation();
 }
@@ -29,8 +30,7 @@ void Field::generation(){
         }
     }
 
-    int count_water_ceils = 0;
-    srand(time(0));
+    int count_water_ceils = 0;  
     while (count_water_ceils < water_density){
         uint16_t min_r = 1;
         uint16_t max_r = std::max(1, std::min(width, height) / 10);
@@ -38,6 +38,8 @@ void Field::generation(){
         uint16_t x = rand() % width, y = rand() % height;
         count_water_ceils += water_maker(x, y, r);
     }
+
+    food_maker();
 }
 
 int Field:: water_maker(uint16_t x, uint16_t y, uint16_t r){
@@ -51,6 +53,20 @@ int Field:: water_maker(uint16_t x, uint16_t y, uint16_t r){
         }
     }
     return water_count;
+}
+
+void Field::food_maker(){
+    while (food_density > food_number){
+        uint16_t y = rand() % height;
+        uint16_t x = rand() % width;
+        if (matrix[y][x] == nullptr){
+            food_number++;
+            Food* food = new Food();
+            food->food_type = GRASS;
+            food->food_value = 1;
+            matrix[y][x] = food;
+        }
+    }
 }
 
 uint16_t Field::get_width(){
