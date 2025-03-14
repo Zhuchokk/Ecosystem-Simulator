@@ -39,4 +39,6 @@
 .idea
 cmake-build-debug
 build
+
+libs/SFML-3.0.0/doc
 libs/SFML-3.0.0/examples

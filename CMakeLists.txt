@@ -13,7 +13,7 @@ endif()
 project ("Ecosystem Simulator")
 
 # Добавьте источник в исполняемый файл этого проекта.
-add_executable (CMakeTarget "Commons.h" "Field.cpp" "Field.h"  "Creatures.cpp" "Creatures.h"  "Ecosystem Simulator.cpp" )
+#add_executable (CMakeTarget "Commons.h" "Field.cpp" "Field.h"  "Creatures.cpp" "Creatures.h"  "Ecosystem Simulator.cpp" )
 
 
 # TODO: Добавьте тесты и целевые объекты, если это необходимо.
@@ -24,7 +24,20 @@ include_directories(${SFML_DIR}/include)
 link_directories(${SFML_DIR}/lib)
 
 #add_executable(EcosystemSimulator "Ecosystem Simulator.cpp")
-add_executable(SFML_Project gui/gui.cpp)
+add_executable(SFML_Project
+        gui/gui.cpp
+
+        gui/src/Button.cpp
+        gui/src/ZoomButton.cpp
+        gui/src/Map.cpp
+        gui/src/Statistics.cpp
+        gui/src/BaseView.cpp
+
+        Commons.h
+        Field.cpp
+        Field.h
+        Creatures.cpp
+        Creatures.h )
 
 target_link_libraries(SFML_Project sfml-graphics-d sfml-window-d sfml-system-d)
 

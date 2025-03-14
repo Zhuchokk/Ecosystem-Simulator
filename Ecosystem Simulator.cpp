@@ -3,6 +3,7 @@
 #include<list>
 #include<thread>
 
+/*
 int main()
 {
 	//just plug
@@ -58,3 +59,4 @@ int main()
 
 	return 0;
 }
+*/

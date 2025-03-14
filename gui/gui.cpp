@@ -1,69 +1,51 @@
+#pragma once
+
+#include <iostream>
+#include <string>
+
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <iostream>
+#include "inc/Button.h"
+#include "inc/ZoomButton.h"
+#include "inc/Map.h"
+#include "inc/Statistics.h"
+#include "inc/BaseView.h"
+
+
 
 int main()
 {
     sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
     sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Ecosystem-Simulator", sf::Style::Default, sf::State::Windowed);
-    window.setVerticalSyncEnabled(true); // call it once after creating the window
+    window.setFramerateLimit(30);// call it once after creating the window
 
-    sf::Color backgroundColor(197, 52, 219);
+    sf::Color backgroundColor(240, 240, 240);
 
+    // mapView
+    Map gameMap(300, 300, 10.0f, {0.01, 0.01},
+        {0.68f, 0.98f}, sf::PrimitiveType::Triangles, 0.35, 0.6);
 
-    // double zone
-    sf::View leftView;  // Левый сектор (70%)
-    sf::View rightView; // Правый сектор (30%)
-
-    // Настройка видов
-    leftView.setViewport(sf::FloatRect({0, 0}, {0.7f, 1.0f}));  // Левый сектор занимает 70% ширины
-    rightView.setViewport(sf::FloatRect({0.7f, 0}, {0.3f, 1.0f})); // Правый сектор занимает 30% шир
+    Statistics rightView({0.7f, 0}, {0.3f, 1.0f}); // Правый сектор занимает 30% шир
+    BaseView leftView({0, 0}, {0.7f, 1.0f}); // Левый сектор (70%)
 
 
-    // font
-    // std::cout << std::filesystem::current_path() << std::endl;
+    // Шрифт и текст
     sf::Font font;
-    if (!font.openFromFile("../../resources/fonts/arialmt.ttf"))
-    {
-        std::cout << "where is font?" << std::endl;
+    if (!font.openFromFile("../resources/fonts/arialmt.ttf")) {
+        std::cerr << "Failed to load font" << std::endl;
+        return 1;
     }
-    sf::Text leftText(font);
-    leftText.setString("Left Section (70%)");
-    leftText.setCharacterSize(24);
-    leftText.setFillColor(sf::Color::White);
-    leftText.setPosition({50, 50});
 
-    sf::Text rightText(font);
-    rightText.setString("Right Section (30%)");
-    rightText.setCharacterSize(24);
-    rightText.setFillColor(sf::Color::White);
-    rightText.setPosition({600, 50});
-
-    sf::Texture bush;
-    if (!bush.loadFromFile("../../resources/textures/plants.png", false, sf::IntRect({120, 40}, {100, 96})))
-    {
-        std::cout << "where is texture?" << std::endl;
-    }
-    bush.setSmooth(true);// Throws sf::Exception if an error occurs
-
-    sf::Sprite sprite(bush);
-
-
-    sf::RectangleShape leftRect({leftView.getSize().x * 0.97f, leftView.getSize().y * 0.97f});
-    leftRect.setFillColor(sf::Color::Red);
-    leftRect.setPosition({leftView.getSize().x * 0.01f, leftView.getSize().y * 0.01f});
-    leftRect.setOutlineColor(sf::Color::Black);
-    leftRect.setOutlineThickness(2);
-
-    // Создаем длинный прямоугольник для правого сектора (чтобы было что прокручивать)
-    sf::RectangleShape rightRect({rightView.getSize().x * 0.97f, rightView.getSize().y+500}); // Высота 1200 пикселей
-    rightRect.setFillColor(sf::Color::Blue);
-    rightRect.setPosition({0, 0}); // Правый прямоугольник начинается в верхней части
-
+    ZoomButton zoomInButton(50.f, 50.f, {50.f, 50.f}, sf::Color::Green, font, "+", 30, sf::Color::Black, 0.8f);
+    ZoomButton zoomOutButton(110.f, 50.f, {50.f, 50.f}, sf::Color::Yellow, font, "-", 30, sf::Color::Black, 1.2f);
 
 
     float scrollOffset = 0.0f;
+    bool mouse_pressed = false;
+
+    sf::Vector2i lastMousePosition;
+
     // run the program as long as the window is open
     while (window.isOpen())
     {
@@ -71,45 +53,78 @@ int main()
         while (const std::optional event = window.pollEvent())
         {
             if (event->is<sf::Event::Closed>())
-            {
                 window.close();
-            }
-            else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-            {
+
+            else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
                     window.close();
             }
 
-            if (const auto* mouseWheelScrolled = event->getIf<sf::Event::MouseWheelScrolled>())
-            {
-                if(mouseWheelScrolled->wheel == sf::Mouse::Wheel::Vertical) {
+            if (const auto* mouseWheelScrolled = event->getIf<sf::Event::MouseWheelScrolled>()) {
+                if(mouseWheelScrolled->wheel == sf::Mouse::Wheel::Vertical)
                     if(mouseWheelScrolled->position.x >= window.getSize().x * 0.7)
                         scrollOffset -= mouseWheelScrolled->delta * 20.0f;
+            }
+
+            if(const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+
+                if(mouseButtonPressed->button == sf::Mouse::Button::Left) {
+                    lastMousePosition = mouseButtonPressed->position;
+                    mouse_pressed = true;
+                }
+
+                sf::Vector2f mousePos(static_cast<float>(mouseButtonPressed->position.x), static_cast<float>(mouseButtonPressed->position.y));
+                if (zoomInButton.isClicked(mousePos)) {
+                    gameMap.map_zoom(0.8f); // up
+                    window.setView(gameMap.get_view());
+                }
+                if (zoomOutButton.isClicked(mousePos)) {
+                    gameMap.map_zoom(1.2f); // down
+                    window.setView(gameMap.get_view());
+                }
+
+            }
+
+            if(const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>()) {
+                if(mouse_pressed) {
+                    sf::Vector2i currentMousePosition = mouseMoved->position;
+                    sf::Vector2i mouseDelta = currentMousePosition - lastMousePosition;
+
+                    // Обновляем центр вида
+                    sf::Vector2f currentCenter = gameMap.get_view().getCenter();
+                    currentCenter.x -= mouseDelta.x; // Инверсия для естественного движения
+                    currentCenter.y -= mouseDelta.y;
+
+                    gameMap.new_center_view(currentCenter);
+
+                    // Ограничиваем перемещение
+                    lastMousePosition = currentMousePosition;
                 }
             }
 
+            if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
+                if (mouseButtonReleased->button == sf::Mouse::Button::Left)
+                    mouse_pressed = false;
         }
-
-        // Ограничиваем прокрутку, чтобы не выйти за пределы содержимого
-        scrollOffset = std::max(scrollOffset, 0.0f); // Не прокручиваем выше начала
-        scrollOffset = std::min(scrollOffset, rightRect.getSize().y - 300); // Не прокручиваем ниже конца
-
-        rightView.setCenter({rightView.getSize().x / 2, 300 + scrollOffset}); // Центр вида смещается в зависимости от прокрутки
 
         // clear the window with black color
         window.clear(backgroundColor);
 
-        window.setView(leftView);
-        window.draw(leftRect);
-        window.draw(leftText);
 
-        window.setView(rightView);
-        window.draw(rightRect);
-        window.draw(rightText);
+        window.setView(leftView.get_view());
+        window.draw(leftView.get_rectangle());
+
+        window.setView(gameMap.get_view());
+        window.draw(gameMap.get_vertices());
 
 
-        window.draw(sprite);
-        // end the current frame
+        window.setView(rightView.get_view());
+        window.draw(rightView.get_rectangle());
+
+        window.setView(window.getDefaultView());
+        zoomInButton.draw(window);
+        zoomOutButton.draw(window);
+
         window.display();
     }
 }
