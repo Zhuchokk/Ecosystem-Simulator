@@ -50,7 +50,7 @@ void Map::create_map() {
             vertices[index + 5].position = sf::Vector2f(x, y + CELL_SIZE);
 
             Object* cell = field.get(i, j);
-            sf::Color clr = (cell == nullptr) ? sf::Color::Black : sf::Color::White;
+            sf::Color clr = (cell == nullptr) ? sf::Color({0, 119, 190}) : sf::Color({34, 139, 34});
 
             for (int k = 0; k < 6; k++)
                 vertices[index + k].color = clr;
