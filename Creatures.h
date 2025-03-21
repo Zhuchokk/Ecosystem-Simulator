@@ -1,6 +1,8 @@
 #pragma once
 
 #include<cstdint>
+#include<string>
+#include<vector>
 #include"Commons.h"
 #include"Field.h"
 #include <cstdlib>
