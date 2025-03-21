@@ -16,8 +16,8 @@ protected:
 	static const uint16_t VISIBILITY_S = 0x08; // 00001000
 
 	uint16_t current_age;
-	uint16_t thirst; 
-	uint16_t hunger; 
+	float thirst; 
+	float hunger; 
 	uint16_t repruductive_urge;
 	float speed;
 	uint16_t agility;

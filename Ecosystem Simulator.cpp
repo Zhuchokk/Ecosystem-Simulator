@@ -14,7 +14,6 @@ int main()
 	char a; std::cout << "Do you want to start(y/n)?"; std::cin >> a;
 	if (a != 'y') return 0;
 	//========
-	//TODO: place food
 	Field field = Field(100, 100, 40, 20);
 	Animal::field = &field; // init static field for all animals
 	std::list<Object*> creatures;
@@ -58,6 +57,7 @@ int main()
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / FPS));
+		//TODO: Add food_adjust
 	}
 	
 

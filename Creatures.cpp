@@ -204,9 +204,13 @@ bool Animal::roll(float chance) {
 }
 
 void Animal::Go(char s) {
+	//Deduct some water and food for movement
+	thirst -= speed * CREATURES_TABLE[animal_type][WEIGHT] * 0.02;
+	hunger -= speed * CREATURES_TABLE[animal_type][WEIGHT] * 0.08;
+
 	if (!roll(speed))
 		return;
-
+	
 	switch (s) {
 	case 'r': field->move_object_right(y, x); break;
 	case 'l': field->move_object_left(y, x); break;
