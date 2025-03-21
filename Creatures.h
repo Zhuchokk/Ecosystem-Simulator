@@ -6,6 +6,7 @@
 #include"Commons.h"
 #include"Field.h"
 #include <cstdlib>
+#include<utility>
 
 int hash(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant);
 
@@ -17,8 +18,8 @@ protected:
 	static const uint16_t VISIBILITY_S = 0x08; // 00001000
 
 	uint16_t current_age;
-	uint16_t thirst; 
-	uint16_t hunger; 
+	float thirst; 
+	float hunger; 
 	uint16_t repruductive_urge;
 	float speed;
 	uint16_t agility;
@@ -111,3 +112,4 @@ public:
 	static int y;
 	bool operator()(std::pair<uint16_t, uint16_t> a, std::pair<uint16_t, uint16_t> b);
 };
+
