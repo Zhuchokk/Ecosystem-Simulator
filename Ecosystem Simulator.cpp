@@ -3,6 +3,11 @@
 #include<list>
 #include<thread>
 
+//Static vars defenition
+int Compare::x = 0;
+int Compare::y = 0;
+Field* Animal::field = NULL;
+
 int main()
 {
 	//just plug

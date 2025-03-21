@@ -4,6 +4,7 @@
 #include"Commons.h"
 #include"Field.h"
 #include <cstdlib>
+#include<utility>
 
 int hash(uint8_t who_eats, uint8_t who_is_eaten, uint8_t is_plant);
 
@@ -109,3 +110,4 @@ public:
 	static int y;
 	bool operator()(std::pair<uint16_t, uint16_t> a, std::pair<uint16_t, uint16_t> b);
 };
+
