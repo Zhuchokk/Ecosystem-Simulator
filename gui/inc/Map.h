@@ -8,13 +8,13 @@
 
 class Map {
 public:
-    Map(const uint16_t n, const uint16_t m, const float CELL_SIZE, const sf::Vector2f& thePosition,
-        const sf::Vector2f& theSize, const sf::PrimitiveType type, const float _food_density, const float water_percentage);
+    Map(uint16_t n, uint16_t m, float CELL_SIZE, const sf::Vector2f& thePosition,
+        const sf::Vector2f& theSize, sf::PrimitiveType type, float _food_density, float water_percentage);
 
     const sf::View& get_view() const;
     const sf::VertexArray& get_vertices() const;
     void new_center_view(sf::Vector2f& currentCenter);
-    void map_zoom(const float factor);
+    void map_zoom(float factor);
 
 private:
     sf::View mapView;

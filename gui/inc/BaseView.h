@@ -15,7 +15,7 @@ private:
     sf::Color bgColor = {229, 229, 229};
     sf::RectangleShape leftRect;
 
-    void createRectangle(const float width, const float height, const sf::Vector2f& position);
+    void createRectangle(float width, float height);
 };
 
 #endif //BASEVIEW_H

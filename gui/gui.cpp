@@ -12,6 +12,12 @@
 #include "inc/Statistics.h"
 #include "inc/BaseView.h"
 
+#include "../Creatures.h"
+
+
+int Compare::x = 0;
+int Compare::y = 0;
+Field* Animal::field = NULL;
 
 
 int main()
