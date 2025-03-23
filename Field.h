@@ -12,17 +12,17 @@ private:
     
     void generation();
     int water_maker(uint16_t x, uint16_t y, uint16_t r);
-    void food_maker();
 public:
     Field(uint16_t _height, uint16_t _width, double _food_percentage, double water_percentage);
     ~Field();
-
+    
     uint16_t get_width();
     uint16_t get_height();
-
+    
     void del(uint16_t i, uint16_t j);
     Object* get(uint16_t i, uint16_t j);
     bool set(uint16_t i, uint16_t j, Object* obj);
+    void food_maker();
 
     bool move_object_right(uint16_t i, uint16_t j);
     bool move_object_left(uint16_t i, uint16_t j);

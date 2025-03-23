@@ -150,7 +150,7 @@ uint16_t* Animal::CheckForTarget(){
 	uint16_t max_urge = 0;
 	uint16_t predator_urge = 5;
 	uint16_t food_urge, water_urge;
-	if(thirst > hunger){
+	if(thirst_urge > hunger_urge){
 		water_urge = 4, food_urge = 0;
 	} else{
 		water_urge = 0, food_urge = 4;
@@ -207,6 +207,7 @@ void Animal::Go(char s) {
 	//Deduct some water and food for movement
 	thirst -= speed * CREATURES_TABLE[animal_type][WEIGHT] * 0.02;
 	hunger -= speed * CREATURES_TABLE[animal_type][WEIGHT] * 0.08;
+	AdjustUrge();
 
 	if (!roll(speed))
 		return;
@@ -248,6 +249,11 @@ void Animal::AdjustAnimalForAge() {
 	}
 }
 
+void Animal::AdjustUrge(){
+	thirst_urge = static_cast<uint16_t>(100 - thirst * 2 * 100 / CREATURES_TABLE[animal_type][WEIGHT]);
+	hunger_urge = static_cast<uint16_t>(100 - hunger * 2 * 100 / CREATURES_TABLE[animal_type][WEIGHT]);  
+}
+
 void Animal::ApplyBasicGene() {
 	uint16_t res = FAST_F & basic_gene + FAST_S & basic_gene - 1; //AA -> res = 1, Aa or aA -> res = 0, aa -> res = -1
 	speed += res * CREATURES_TABLE[animal_type][FAST_GENE];
@@ -260,8 +266,10 @@ uint16_t* Male::MCheckForTarget() {
 	uint16_t predator_urge = 5;
 	uint16_t libido = 4;
   
-	uint16_t min_x = x - visibility >= 0 ? x - visibility : 0, max_x = x + visibility <= field->get_width() ? x + visibility : field ->get_width();
-	uint16_t min_y = y - visibility >= 0 ? y - visibility : 0, max_y = y + visibility <= field->get_height() ? y + visibility : field->get_height();
+	uint16_t min_x = x - visibility >= 0 ? x - visibility : 0,
+			 max_x = x + visibility <= field->get_width() ? x + visibility : field ->get_width();
+	uint16_t min_y = y - visibility >= 0 ? y - visibility : 0,
+			 max_y = y + visibility <= field->get_height() ? y + visibility : field->get_height();
   
 	uint16_t* target_coord = new uint16_t[2];
   
@@ -336,6 +344,7 @@ void Animal::ShuffleBasicParameters() {
 	current_age = rand() % (int)CREATURES_TABLE[animal_type][MAX_AGE];
 	thirst = rand() % (int)(CREATURES_TABLE[animal_type][WEIGHT] / 2);
 	hunger = rand() % (int)(CREATURES_TABLE[animal_type][WEIGHT] / 2);
+	AdjustUrge();
 	repruductive_urge = rand() % 50;
 	speed = CREATURES_TABLE[animal_type][SPEED_C];
 	visibility = CREATURES_TABLE[animal_type][VISIBILITY_C];
@@ -370,6 +379,7 @@ void Animal::ApplyChildParameters(){
 	current_age = 0;
 	thirst = (CREATURES_TABLE[animal_type][WEIGHT] / 2) * CHILD_THIRST_COEF;
 	hunger = (CREATURES_TABLE[animal_type][WEIGHT] / 2) * CHILD_HUNGER_COEF;
+	AdjustUrge();
 	repruductive_urge = 0;
 	speed = CREATURES_TABLE[animal_type][SPEED_C];
 	visibility = CREATURES_TABLE[animal_type][VISIBILITY_C];
@@ -438,28 +448,37 @@ void Animal::BasicLive(){
 				  	chance += 0.2;
 				}
 				if (roll(chance)){
-					uint16_t food = CREATURES_TABLE[animal->who()][WEIGHT];
-					hunger = hunger - food ? hunger - food > 0 : 0;
+					float food = CREATURES_TABLE[animal->who()][WEIGHT];
+					float water = field->get(target[0], target[1])->water_value;
+					float capacity = CREATURES_TABLE[animal_type][WEIGHT] / 2;
+					hunger = hunger + food < capacity ? hunger + food : capacity;
+					thirst = thirst + water < capacity ? thirst + water : capacity;
 					field->del(target[0], target[1]);
+					AdjustUrge();
 				}
 			} else{
-				GoToTarget(target[0], target[1]);
+				GoToTarget(target[1], target[0]);
 			}
 		}
 	}
 	else{
 		if (abs(x - target[0]) + abs(y - target[1]) == 1){
 			if (field->get(target[0], target[1])->obj_type == FOOD){
-				uint16_t food = hunger - field->get(target[0], target[1])->food_value;
-				hunger = hunger - food ? hunger - food > 0 : 0;
+				float food = field->get(target[0], target[1])->food_value;
+				float water = field->get(target[0], target[1])->water_value;
+				float capacity = CREATURES_TABLE[animal_type][WEIGHT] / 2;
+				hunger = hunger + food < capacity ? hunger + food : capacity;
+				thirst = thirst + water < capacity ? thirst + water : capacity;
 				field->del(target[0], target[1]);
 			}
 			else{
-				uint16_t water = CREATURES_TABLE[animal_type][WEIGHT] / 5;
-				thirst = thirst - water ? thirst - water > 0 : 0;
+				float water = CREATURES_TABLE[animal_type][WEIGHT] / 5;
+				float capacity = CREATURES_TABLE[animal_type][WEIGHT] / 2;
+				thirst = thirst + water < capacity ? thirst + water : capacity;
 			}
+			AdjustUrge();
 		} else {
-			GoToTarget(target[0], target[1]);
+			GoToTarget(target[1], target[0]);
 		}
 	}
 }
@@ -561,7 +580,7 @@ void Male:: Live(){
 	if(++current_age > CREATURES_TABLE[animal_type][LIFESPAN]){
 		field->del(y, x);
 	}
-	if (partner || (repruductive_urge > thirst && repruductive_urge > hunger)){
+	if (partner || (repruductive_urge > thirst_urge && repruductive_urge > hunger_urge)){
 		uint16_t* target = MCheckForTarget();
 		if (!target && !partner){
 			Ramble();
@@ -579,7 +598,7 @@ void Male:: Live(){
 			if (partner->hired){
 				uint16_t* partner_coord = partner->where();
 				if (abs(y - partner_coord[0]) + abs(x - partner_coord[1]) > 1){
-					GoToTarget(partner_coord[0], partner_coord[1]);
+					GoToTarget(partner_coord[1], partner_coord[0]);
 				} else{
 					Mating();
 				}
@@ -590,7 +609,7 @@ void Male:: Live(){
 		} else{
 			Female* female = (Female*)animal;
 			if (SendMateRequest(female)){
-				GoToTarget(target[0], target[1]);
+				GoToTarget(target[1], target[0]);
 			} else{
 				Ramble();
 			}

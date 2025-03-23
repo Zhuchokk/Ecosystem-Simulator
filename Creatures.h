@@ -16,6 +16,8 @@ protected:
 	static const uint16_t VISIBILITY_S = 0x08; // 00001000
 
 	uint16_t current_age;
+	uint16_t thirst_urge;
+	uint16_t hunger_urge;
 	float thirst; 
 	float hunger; 
 	uint16_t repruductive_urge;
@@ -42,6 +44,7 @@ protected:
 	static uint16_t GenerateGene();
 	static uint16_t GenerateGene(uint16_t father_gene, uint16_t mother_gene);
 	void AdjustAnimalForAge(); // Changes speed, visibility, agility, strength of animal, according it's age.
+	void AdjustUrge(); 
 	void ApplyBasicGene();
 	void ShuffleBasicParameters();
 	void ApplyChildParameters();

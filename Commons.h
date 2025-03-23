@@ -48,6 +48,8 @@ public:
 };
 
 class Water : public Object {
+public:
+	Water() : Object() {obj_type = WATER; };
 };
 
 struct Edge{

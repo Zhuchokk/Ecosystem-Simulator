@@ -55,20 +55,6 @@ int Field:: water_maker(uint16_t x, uint16_t y, uint16_t r){
     return water_count;
 }
 
-void Field::food_maker(){
-    while (food_density > food_number){
-        uint16_t y = rand() % height;
-        uint16_t x = rand() % width;
-        if (matrix[y][x] == nullptr){
-            food_number++;
-            Food* food = new Food();
-            food->food_type = GRASS;
-            food->food_value = 1;
-            matrix[y][x] = food;
-        }
-    }
-}
-
 uint16_t Field::get_width(){
     return width;
 }
@@ -79,6 +65,9 @@ uint16_t Field::get_height(){
 
 
 void Field::del(uint16_t y, uint16_t x){
+    if (matrix[y][x]->obj_type == FOOD){
+        food_number--;
+    }
     delete matrix[y][x];
     matrix[y][x] = nullptr;
 }
@@ -93,6 +82,20 @@ bool Field::set(uint16_t i, uint16_t j, Object* obj){
         return true;
     }
     return false;
+}
+
+void Field::food_maker(){
+    while (food_density > food_number){
+        uint16_t y = rand() % height;
+        uint16_t x = rand() % width;
+        if (matrix[y][x] == nullptr){
+            food_number++;
+            Food* food = new Food();
+            food->food_type = GRASS;
+            food->food_value = 1;
+            matrix[y][x] = food;
+        }
+    }
 }
 
 bool Field::move_object_right(uint16_t y, uint16_t x){
