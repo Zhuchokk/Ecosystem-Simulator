@@ -66,7 +66,7 @@ void Map::create_map() {
                                 clr = sf::Color({255, 69, 0});
                                 break;
                             default:
-                                clr = sf::Color::Black;
+                                clr = sf::Color::Red;
                                 break;
                         }
                         break;
@@ -79,7 +79,7 @@ void Map::create_map() {
                         break;
 
                     default:
-                        clr = sf::Color::Black;
+                        clr = sf::Color({139, 69, 19});
                         break;
                 }
 
