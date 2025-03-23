@@ -1,4 +1,5 @@
 #include "../inc/Map.h"
+#include "../../Creatures.h"
 
 Map::Map(const uint16_t n, const uint16_t m, const float CELL_SIZE, const sf::Vector2f& thePosition,
          const sf::Vector2f& theSize, const sf::PrimitiveType type, const float _food_density, const float water_percentage) :
@@ -50,7 +51,37 @@ void Map::create_map() {
             vertices[index + 5].position = sf::Vector2f(x, y + CELL_SIZE);
 
             const Object* cell = field.get(i, j);
-            const sf::Color clr = (cell == nullptr) ? sf::Color({0, 119, 190}) : sf::Color({34, 139, 34});
+            sf::Color clr;
+
+            if(cell == nullptr)
+                clr = sf::Color::Black;
+            else
+                switch (cell->obj_type) {
+                    case ANIMAL:
+                        switch (((Animal*)cell)->who()) {
+                            case RABBIT:
+                                clr = sf::Color({169, 169, 169});
+                                break;
+                            case FOX:
+                                clr = sf::Color({255, 69, 0});
+                                break;
+                            default:
+                                clr = sf::Color::Black;
+                                break;
+                        }
+                        break;
+
+                    case WATER:
+                        clr = sf::Color({0, 119, 190});
+                        break;
+                    case FOOD:
+                        clr = sf::Color({34, 139, 34});
+                        break;
+
+                    default:
+                        clr = sf::Color::Black;
+                        break;
+                }
 
             for (int k = 0; k < 6; k++)
                 vertices[index + k].color = clr;
