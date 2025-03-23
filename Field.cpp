@@ -1,11 +1,11 @@
 #include "Field.h"
 #include <iostream>
 
-Field::Field(uint16_t _height, uint16_t _width, double _food_procentage, double water_percentage) 
+Field::Field(uint16_t _height, uint16_t _width, double _food_procentage, double water_percentage) // food and water procentage expected from 0 to 100
     : height(_height),
     width(_width),
-    water_density(static_cast<int>(_height * _width * water_percentage)),
-    food_density(static_cast<int>(_height * _width * _food_procentage)),
+    water_density(static_cast<int>(_height * _width * water_percentage / 100)),
+    food_density(static_cast<int>(_height * _width * _food_procentage) / 100),
     food_number(0)
 {
     generation();
